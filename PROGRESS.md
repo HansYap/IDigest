@@ -1,6 +1,15 @@
 # Morning Signal — development checkpoint
 
-## Agreed requirements
+## Current handoff — 7 November 2026
+
+- **Windows.** Open `Start Morning Signal.cmd` for the local reader. It collects feeds while running and keeps bookmarks and settings in `data/`.
+- **GitHub and website.** GitHub `main` at `0829ce0` adds the Cloudflare Pages edition. The [manual workflow run](https://github.com/HansYap/IDigest/actions/runs/42373282905) succeeded. The [live edition](https://idigest.pages.dev/edition.json) contained 600 headlines and recorded its latest successful collection at 8:37 p.m. Malaysia time on 7 November. The website saves preferences and bookmarks in each browser.
+- **Local changes.** Both readers now have an Unread only filter. Website Settings can download a bookmark and preferences backup and import it in another browser. These changes are ready for a code deployment.
+- **Verified.** All 36 automated tests passed. Browser checks covered the filter on both readers and a backup transfer between separate browser profiles, including merging existing bookmarks and rejecting an invalid file. A separate website build during the review of `0829ce0` collected all 25 feeds successfully.
+- **Next check.** After the daily schedule around 6:30 a.m. Malaysia time, confirm a [scheduled workflow run](https://github.com/HansYap/IDigest/actions/workflows/publish-edition.yml) sent the build request and the live edition's `refresh.last_success_at` moved forward. If the request succeeded and the edition stays old, check the corresponding Cloudflare Pages deployment.
+- **Resume here.** See [README.md](README.md) for launch and deployment instructions. Run `python -m unittest discover -s tests -v` for local checks. Keep the `data/` folder and the deploy hook URL private.
+
+## Original Windows requirements
 
 - Free local news app. No paid APIs, required API keys, hosting, or AI services.
 - Tech, gaming/reverse engineering, internet and pop culture, animals, science, motorsport, and Malaysia.
@@ -8,7 +17,7 @@
 - Cached stories load immediately; background collection has bounded timeouts.
 - Save work here so development can resume after an interruption.
 
-## Current state
+## First Windows release
 
 The first version is implemented in this folder:
 
@@ -56,10 +65,8 @@ The first version is complete. No required implementation work remains.
 - JavaScript syntax passes. Saved refresh-control.jpg and source snapshot .checkpoints/morning-signal-v1.0.1.zip.
 - Only the separate test preview on port 8875 was stopped. The user's app on its usual port was not stopped. Reload the existing browser tab once to load the updated CSS and wording; no server restart is needed.
 
-## Resume instructions
+## Windows retention checkpoint
 
-Latest update: configurable expiry and bookmark protection are complete. Settings now offers 1/3/7/14/30 days for unsaved stories, with 30 days preserved as the default. Automatic cleanup runs on startup, preference changes, and refresh; expired unsaved items are also excluded from live snapshots and removed from the browser's active offline cache. Bookmarks are exempt from time and cache-size limits and no longer hit the old 1,000-row snapshot limit. Removing an expired bookmark makes it eligible for cleanup immediately.
+Settings added 1/3/7/14/30 days for unsaved stories and kept 30 days as the default. Automatic cleanup runs on startup, preference changes, and refresh; expired unsaved items are also excluded from live snapshots and removed from the browser's active offline cache. Bookmarks are exempt from time and cache-size limits and no longer hit the old 1,000-row snapshot limit. Removing an expired bookmark makes it eligible for cleanup immediately.
 
 All 33 tests pass. Browser test in a separate temporary database confirmed a 1-day window removes a 2-day-old unsaved story while keeping a 12-day-old bookmark. Temporary test preview and its files were cleaned up. The actual app was restarted at port 8765 and existing preferences/bookmarks were checked as preserved; its retention remains 30 days. The real reader is running, and its new Settings panel is open as a deliverable. Screenshot: retention-settings.jpg. Source checkpoint: .checkpoints/morning-signal-retention-update.zip.
-
-Read this file and README.md, inspect existing files, and run the documented checks before changing anything. Preserve the free/local-only requirement. No publication or external account integration is needed.

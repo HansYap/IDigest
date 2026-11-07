@@ -24,6 +24,7 @@ This keeps a terminal attached; press Ctrl+C there to stop it. The usual address
 - **All stories** shows the collected library across refreshes, including earlier days, with search and category filters. It has no hourly cutoff. Up to 600 recent unsaved stories are displayed, along with your bookmarks. Unsaved items expire after your chosen retention period (30 days by default), or sooner when the cache reaches its size limit.
 - **Watchlist** highlights stories matching your watched phrases.
 - **Saved** holds stories you bookmarked. Use the bookmark icon on any story to keep its headline, excerpt, and original link. Bookmarks do not expire. Removing a bookmark makes that story subject to the normal expiry rules again.
+- Turn on **Unread only** in the filter bar to hide stories you've read in the current view. Turn it off to see those stories again.
 - **Settings** lets you change watched phrases, mute words, choose sources, and set digest size, refresh frequency, and how long unsaved stories are kept (1, 3, 7, 14, or 30 days).
 - **Refresh** collects the latest available stories. Source health shows which feeds worked and which need another try.
 
@@ -71,6 +72,8 @@ The local reader has no installation or build command.
 ## Cloudflare Pages
 
 The hosted edition collects feeds during each Cloudflare Pages build and publishes headlines, dates, sources, and links. Bookmarks, reading history, and preferences are stored in the browser you use to open the hosted site. The local reader uses its own database. **Reload edition** loads the most recently published edition.
+
+To move website bookmarks and preferences to another browser, open **Make it yours** and click **Export backup**. In the other browser, open the same panel, click **Import backup**, and choose the downloaded JSON file. Import adds the bookmarks to your existing saved list and restores the preferences from the file. Keep the backup somewhere private.
 
 In **Workers & Pages → Create application → Continue to Pages**, choose **Import an existing Git repository**, select this repository, and use the following settings.
 

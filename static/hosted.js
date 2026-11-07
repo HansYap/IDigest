@@ -3,6 +3,9 @@
 (() => {
   const PROFILE_KEY = 'morning-signal-hosted-profile';
   const CACHE_KEY = 'morning-signal-state';
+  const BACKUP_FORMAT = 'morning-signal-backup';
+  const BACKUP_VERSION = 1;
+  const BOOKMARK_FIELDS = ['id', 'title', 'url', 'source_id', 'source', 'category', 'published_at', 'discovered_at'];
   const DAY = 86400000;
   let pendingEdition;
   let refreshedEdition;
@@ -119,27 +122,94 @@
     throw new Error('Choose whether to save or mark the story read.');
   }
 
-  function updateSettings(body, profile, state) {
+  function validatedSettings(body) {
+    if (!body || typeof body !== 'object' || Array.isArray(body)) {
+      throw new Error('Choose valid reading preferences.');
+    }
+    const settings = {};
     for (const key of ['watchlist', 'muted_keywords']) {
+      if (!Object.hasOwn(body, key)) continue;
       if (!Array.isArray(body[key]) || body[key].some(item => typeof item !== 'string')) {
         throw new Error('Enter your topics as text.');
       }
-      profile.settings[key] = [...new Set(body[key].slice(0, 50).map(item => item.trim().slice(0, 80)).filter(Boolean))];
+      settings[key] = [...new Set(body[key].slice(0, 50).map(item => item.trim().slice(0, 80)).filter(Boolean))];
     }
     for (const [key, minimum, maximum] of [['digest_size', 5, 30], ['retention_days', 1, 30]]) {
+      if (!Object.hasOwn(body, key)) continue;
       const value = body[key];
       if (!Number.isInteger(value) || value < minimum || value > maximum) {
         throw new Error('Choose a valid digest size and retention period.');
       }
-      profile.settings[key] = value;
+      settings[key] = value;
     }
+    if (Object.hasOwn(body, 'enabled_sources')) {
+      if (!Array.isArray(body.enabled_sources) || body.enabled_sources.some(id => typeof id !== 'string' || !id)) {
+        throw new Error('Choose valid news sources.');
+      }
+      settings.enabled_sources = [...new Set(body.enabled_sources)];
+    }
+    return settings;
+  }
+
+  function updateSettings(body, profile, state) {
+    const settings = validatedSettings(body);
     const sourceIds = new Set(state.sources.map(source => source.id));
-    if (!Array.isArray(body.enabled_sources) || body.enabled_sources.some(id => !sourceIds.has(id))) {
+    if (!settings.enabled_sources || settings.enabled_sources.some(id => !sourceIds.has(id))) {
       throw new Error('Choose from the available news sources.');
     }
-    if (sourceIds.size) profile.settings.enabled_sources = [...new Set(body.enabled_sources)];
+    if (!sourceIds.size) delete settings.enabled_sources;
+    profile.settings = { ...profile.settings, ...settings };
     writeProfile(profile);
     return { settings: { ...state.settings, ...profile.settings } };
+  }
+
+  function isArticleUrl(value) {
+    if (typeof value !== 'string') return false;
+    try {
+      const url = new URL(value);
+      return ['http:', 'https:'].includes(url.protocol) && !url.username && !url.password;
+    } catch { return false; }
+  }
+
+  function backupBookmark(story) {
+    if (!story || BOOKMARK_FIELDS.some(key => typeof story[key] !== 'string' || !story[key].trim()) ||
+        !isArticleUrl(story.url) || !Number.isFinite(publicationTime(story))) {
+      throw new Error('This backup contains an invalid bookmark.');
+    }
+    const bookmark = Object.fromEntries(BOOKMARK_FIELDS.map(key => [key, story[key]]));
+    const related = Array.isArray(story.related_sources) ? story.related_sources : [];
+    bookmark.related_sources = related
+      .filter(source => source && typeof source.source_id === 'string' && typeof source.source === 'string' && isArticleUrl(source.url))
+      .slice(0, 3)
+      .map(({ source_id, source, url }) => ({ source_id, source, url }));
+    return bookmark;
+  }
+
+  function exportBackup() {
+    const profile = readProfile();
+    return {
+      format: BACKUP_FORMAT,
+      version: BACKUP_VERSION,
+      settings: validatedSettings(profile.settings),
+      bookmarks: profile.bookmarks.map(backupBookmark),
+    };
+  }
+
+  function importBackup(backup) {
+    if (backup?.format !== BACKUP_FORMAT || backup.version !== BACKUP_VERSION || !Array.isArray(backup.bookmarks)) {
+      throw new Error('Choose a compatible backup exported from Morning Signal.');
+    }
+    const settings = validatedSettings(backup.settings);
+    const imported = backup.bookmarks.map(backupBookmark);
+    const profile = readProfile();
+    const bookmarks = new Map(profile.bookmarks.map(story => [story.id, story]));
+    for (const story of imported) {
+      if (!bookmarks.has(story.id)) bookmarks.set(story.id, story);
+    }
+    const restored = { ...profile, settings, bookmarks: [...bookmarks.values()] };
+    const state = snapshot(latestEdition, restored);
+    writeProfile(restored);
+    return state;
   }
 
   window.morningSignalHosted = async function (path, body) {
@@ -152,6 +222,7 @@
       refreshedEdition = await getEdition();
       return { ...refreshedEdition.refresh, running: false };
     }
+    if (path === '/api/backup') return body === undefined ? exportBackup() : importBackup(body);
     if (body && (path === '/api/story' || path === '/api/settings')) {
       const profile = readProfile();
       const state = snapshot(latestEdition, profile);

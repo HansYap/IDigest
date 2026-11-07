@@ -4,3 +4,17 @@
 .topbar .edition{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #refresh-button{flex-shrink:0;white-space:nowrap;min-height:44px}
 #retention-days{margin-bottom:10px}
+
+.unread-filter {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 6px;
+  min-height: 34px;
+  font-size: 11px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.unread-filter input { margin: 0; accent-color: var(--accent); }
+.backup-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.backup-actions + .settings-error { margin: 10px 0 0; }

@@ -367,7 +367,7 @@ function createStoryCard(story, index) {
   return card;
 }
 
-function renderEmpty() {
+function renderEmpty(hasReadStories) {
   const empty = node('div', 'empty-state');
   empty.append(node('span', 'empty-symbol', '✳'));
   let title = 'Nothing here just yet.';
@@ -378,6 +378,11 @@ function renderEmpty() {
     title = 'A little curiosity is on its way.';
     description = hosted ? 'Opening the latest edition.' : 'Gathering headlines from your sources. The first edition can take a moment; you can leave this page open.';
     buttonText = null;
+  } else if (hasReadStories) {
+    title = 'You’re all caught up here.';
+    description = 'Turn off Unread only to see the stories you’ve read.';
+    buttonText = 'Show read stories';
+    action = () => { $('#unread-only').checked = false; render(); };
   } else if (query || category !== 'all') {
     title = 'No stories in this corner.';
     description = 'Try a different phrase or open up your category filter.';
@@ -468,7 +473,8 @@ function render() {
   renderHeading();
   renderCounts();
   renderRefresh();
-  const stories = filteredStories();
+  const matches = filteredStories();
+  const stories = $('#unread-only').checked ? matches.filter(story => !story.read) : matches;
   const grid = $('#stories');
   grid.setAttribute('aria-busy', String(!loaded));
   if (!loaded && !model.stories.length) {
@@ -478,7 +484,7 @@ function render() {
       skeleton.append(...Array.from({ length: 6 }, () => node('span')));
       return skeleton;
     }));
-  } else grid.replaceChildren(...(stories.length ? stories.map(createStoryCard) : [renderEmpty()]));
+  } else grid.replaceChildren(...(stories.length ? stories.map(createStoryCard) : [renderEmpty(matches.length > 0)]));
   $('#result-count').textContent = !loaded ? 'Gathering stories…' : stories.length ? `${stories.length} ${stories.length === 1 ? 'story' : 'stories'}${view === 'today' ? ' · picked for a little variety' : view === 'all' ? ' · collected across refreshes' : ''}` : '0 stories';
   if ($('#sources-dialog').open) renderSources();
 }
@@ -563,6 +569,7 @@ function openSettings(focusWatchlist = false) {
   setSelectValue('#refresh-minutes', model.settings.refresh_minutes || 60);
   setSelectValue('#retention-days', model.settings.retention_days || 30);
   $('#settings-error').hidden = true;
+  $('#backup-error').hidden = true;
   const sourceSettings = $('#source-settings');
   sourceSettings.replaceChildren();
   for (const source of model.sources) {
@@ -624,6 +631,56 @@ async function saveSettings(event) {
   }
 }
 
+function showBackupError(message) {
+  const notice = $('#backup-error');
+  notice.textContent = message;
+  notice.hidden = false;
+}
+
+async function downloadBackup() {
+  $('#backup-error').hidden = true;
+  try {
+    const backup = await api('/api/backup');
+    const file = new Blob([JSON.stringify(backup)], { type: 'application/json' });
+    const url = URL.createObjectURL(file);
+    const link = node('a');
+    link.href = url;
+    link.download = 'morning-signal-backup.json';
+    $('#backup-settings').append(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch (error) {
+    showBackupError(`Could not export your backup. ${error.message}`);
+  }
+}
+
+async function restoreBackup(event) {
+  const input = event.target;
+  const file = input.files[0];
+  input.value = '';
+  if (!file) return;
+  const button = $('#import-backup');
+  button.disabled = true;
+  $('#backup-error').hidden = true;
+  try {
+    if (file.size > 16 * 1024 * 1024) throw new Error('Choose a backup up to 16 MB.');
+    let backup;
+    try { backup = JSON.parse(await file.text()); }
+    catch { throw new Error('Choose a readable JSON backup exported from Morning Signal.'); }
+    model = normalizeState(await api('/api/backup', backup));
+    loaded = true;
+    cacheState();
+    closeDialog($('#settings-dialog'));
+    render();
+    toast('Bookmarks and preferences imported.');
+  } catch (error) {
+    showBackupError(`Could not import your backup. ${error.message}`);
+  } finally {
+    button.disabled = false;
+  }
+}
+
 function sourceStatus(source) {
   if (source.enabled === false) return ['Paused', ''];
   if (source.error || ['error', 'failed', 'unavailable'].includes(source.status)) return ['Needs attention', 'warning'];
@@ -674,6 +731,7 @@ for (const [key, value] of Object.entries(CATEGORIES)) {
 $$('[data-view]').forEach(button => button.addEventListener('click', () => changeView(button.dataset.view)));
 $('.brand').addEventListener('click', event => { event.preventDefault(); changeView('today'); });
 $('#refresh-button').addEventListener('click', refreshFeeds);
+$('#unread-only').addEventListener('change', render);
 $('#search').addEventListener('input', event => {
   clearTimeout(searchTimer);
   searchTimer = setTimeout(() => { query = event.target.value.trim(); render(); }, 150);
@@ -697,6 +755,10 @@ $$('dialog').forEach(dialog => {
 });
 
 if (hosted) {
+  $('#backup-settings').hidden = false;
+  $('#export-backup').addEventListener('click', downloadBackup);
+  $('#import-backup').addEventListener('click', () => $('#backup-file').click());
+  $('#backup-file').addEventListener('change', restoreBackup);
   $('#shutdown-button').closest('.shutdown-section').hidden = true;
   const interval = $('#refresh-minutes').parentElement;
   interval.hidden = true;
