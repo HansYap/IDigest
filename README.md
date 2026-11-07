@@ -2,7 +2,7 @@
 
 A personal morning newspaper for gaming, technology, internet culture, science, animals, motorsport, and Malaysia.
 
-**Free to run.** No API keys, paid services, cloud hosting, JavaScript build step, or third-party Python packages. Python 3.10 or newer and an internet connection are all you need.
+**Free to run.** The Windows reader uses Python 3.10 or newer and an internet connection. It runs with Python's standard library and plain browser JavaScript. The website edition runs on Cloudflare Pages, as described below.
 
 ## Open it
 
@@ -59,7 +59,7 @@ Back up the entire data folder while the app is stopped to preserve your reader.
 
 ## Development and resuming
 
-PROGRESS.md records what was finished, what was checked, and anything still outstanding. Read it before continuing development after an interruption. Code is stored in this folder; stopping the chat does not delete it.
+[AGENTS.md](AGENTS.md) guides coding agents at the start and end of work. [PROGRESS.md](PROGRESS.md) records the current handoff, with older checkpoints in [docs/HISTORY.md](docs/HISTORY.md). The [development guide](docs/DEVELOPMENT.md) covers design decisions, verification, and commit-message drafts. The human reviews and makes every commit manually. Agents explain each completed change and observed human commit in plain language in chat.
 
 Run the checks with:
 
