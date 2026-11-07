@@ -37,6 +37,12 @@ When checking the daily publication schedule, confirm that a scheduled GitHub ru
 
 ## Handoffs and clean sessions
 
+Following Lecture 5, a session starts with a fresh agent context, such as a new chat or a context reset. Compaction summarizes context within the existing session. Follow-up messages and Git commits are not session boundaries. Resuming the same saved context continues that session; replacing it with fresh context starts another. No manual session commands or status field are required.
+
+A session ends when that context is abandoned or replaced. An ordinary reply does not end it. This does not establish successful completion. Following Lecture 12, claim successful completion only when the task passes verification and the clean-state checks pass. Assess all five areas: build, tests, recorded progress, temporary artifacts, and the normal startup path. Use the applicable verification rows above, explain checks that do not apply, and distinguish earlier evidence from newly run checks. Failed or unknown checks must remain visible in the handoff.
+
+Before a planned stop or reset, save the handoff. Keep it current after meaningful changes so an unexpected interruption loses less information. After an abrupt stop, inspect actual files and checks rather than assuming cleanup ran. Lecture 5's suggestion to prepare a handoff when a task needs more than roughly 60% of the context window is a planning heuristic, not an automatic cutoff. Use reliable context measurements when available; never invent a percentage or skip verification to rush a finish.
+
 Keep the current handoff short. Use these fields in PROGRESS.md and replace stale current facts as work progresses.
 
 | Field | What to record |
@@ -48,9 +54,17 @@ Keep the current handoff short. Use these fields in PROGRESS.md and replace stal
 | Publication | Separately observed local, GitHub, and live status, with public evidence where available. |
 | Blockers and next action | Remaining work, what prevents completion, and the exact evidence needed to finish. |
 
-If interrupted, record the partial work, failing checks, and safe next action. Preserve work for review. A session can finish with reviewed uncommitted edits ready for the human, because the human owns the commit step.
+If stopping with unfinished work, record partial changes, failing checks, and the safe next action; label the work incomplete. Preserve work for review rather than discarding it to make Git look clean. The user requires manual commits, so reviewed uncommitted edits are an acceptable handoff when their scope and verification are explicit. Agents never commit or automatically roll back the human's work.
 
-Remove temporary files and stop test processes created by the task when safe. Inspect final Git status for accidental artifacts. Keep older checkpoints in [HISTORY.md](HISTORY.md) when they stop being useful in the current handoff. Revisit rules when a recurring failure or design change gives a reason to update them.
+Remove temporary files and stop test processes created by the task when safe. Inspect final Git status for accidental artifacts. Preserve useful historical rationale according to the maintenance rules below. Revisit rules when a recurring failure or design change gives a reason to update them.
+
+## Reading and document maintenance
+
+- The startup reading set is AGENTS.md and PROGRESS.md. Search headings or keywords and read only relevant sections of other documents and code. Do not recursively open every linked document. Expand scope for dependencies, failures, or uncertainty that could affect correctness.
+- Keep AGENTS.md near 600 words or fewer and PROGRESS.md near 400. Rewrite the current handoff instead of appending a session diary. Preserve unresolved work and evidence; move supporting detail behind a link when needed. These are practical targets, not context-window limits.
+- Keep one authoritative home for each rule or decision and link to it. Add a document only when existing sections cannot hold the information clearly. Do not copy chat transcripts, full test logs, or routine commit descriptions into history; Git already preserves committed changes.
+- HISTORY.md is searched only to answer a specific historical question. When it grows beyond roughly 2,000 words, move dated entries into files under `docs/history/`, grouped by period or topic, and leave a short index in HISTORY.md. Preserve dates, rationale, evidence, and working links. Do not load all archives at startup.
+- Review length and duplication when editing the affected document. No separate maintenance job is needed. Definitions, explanations, and unchanged status alone do not require progress or history edits.
 
 ## Commit messages and chat reports
 
