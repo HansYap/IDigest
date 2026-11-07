@@ -66,4 +66,24 @@ Run the checks with:
 python -m unittest discover -s tests -v
 ```
 
-There is no installation or build command.
+The local reader has no installation or build command.
+
+## Cloudflare Pages
+
+The hosted edition collects feeds during each Cloudflare Pages build and publishes headlines, dates, sources, and links. Bookmarks, reading history, and preferences are stored in the browser you use to open the hosted site. The local reader uses its own database. **Reload edition** loads the most recently published edition.
+
+In **Workers & Pages → Create application → Continue to Pages**, choose **Import an existing Git repository**, select this repository, and use the following settings.
+
+| Setting | Value |
+| --- | --- |
+| Production branch | `main` |
+| Framework preset | None |
+| Root directory | Repository root (leave blank) |
+| Build command | `python scripts/build_pages.py` |
+| Build output directory | `dist` |
+
+The build needs Python 3.10 or newer, which is available on the current Pages build image. Only `dist` is published. The generated site requests that search engines skip indexing it. Anyone with the Pages URL can still open it.
+
+For a daily edition, create a **Deploy Hook** for `main` in the Pages project's build settings, then save its URL in the GitHub repository under **Settings → Secrets and variables → Actions** as `PAGES_DEPLOY_HOOK`. The **Publish Morning Signal edition** workflow requests a build around 6:30 a.m. Malaysia time and can also be run manually from the **Actions** tab. Keep the hook URL in the secret field. A failed feed collection leaves the previous successful deployment live.
+
+To preview a hosted build locally, run `python scripts/build_pages.py`, then `python -m http.server --bind 127.0.0.1 --directory dist 8875` and open `http://127.0.0.1:8875`.

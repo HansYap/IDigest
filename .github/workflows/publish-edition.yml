@@ -1,0 +1,29 @@
+name: Publish Morning Signal edition
+
+on:
+  schedule:
+    # 06:30 the following morning in Malaysia (UTC+8).
+    - cron: '30 22 * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  request-edition:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Request a Cloudflare Pages build
+        env:
+          PAGES_DEPLOY_HOOK: ${{ secrets.PAGES_DEPLOY_HOOK }}
+          TRIGGER_EVENT: ${{ github.event_name }}
+        run: |
+          if [ -z "$PAGES_DEPLOY_HOOK" ]; then
+            if [ "$TRIGGER_EVENT" = workflow_dispatch ]; then
+              echo "::error::Set the PAGES_DEPLOY_HOOK repository secret before requesting an edition."
+              exit 1
+            fi
+            echo "::notice::Set the PAGES_DEPLOY_HOOK repository secret to enable this workflow."
+            exit 0
+          fi
+          curl --fail --silent --show-error --max-time 30 --output /dev/null --request POST "$PAGES_DEPLOY_HOOK"

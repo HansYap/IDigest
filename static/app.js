@@ -26,11 +26,13 @@ const ICONS = {
   check: '<path d="m5 12 4 4L19 6"/>',
 };
 let model = { stories: [], sources: [], settings: {}, refresh: {} };
+const hosted = typeof window.morningSignalHosted === 'function';
 let view = ['today', 'all', 'watchlist', 'saved'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'today';
 let category = 'all';
 let query = '';
 let loaded = false;
 let fetching = false;
+let reloadingEdition = false;
 let disconnected = false;
 let shuttingDown = false;
 let pollTimer;
@@ -103,6 +105,7 @@ function toast(message) {
 }
 
 async function api(path, body) {
+  if (hosted) return window.morningSignalHosted(path, body);
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 20000);
   try {
@@ -136,13 +139,14 @@ function normalizeState(data) {
 }
 
 function cacheState() {
-  try { localStorage.setItem('morning-signal-state', JSON.stringify(model)); } catch { /* Storage can be unavailable or full. The server keeps the real copy. */ }
+  try { localStorage.setItem('morning-signal-state', JSON.stringify(model)); } catch { /* Browser storage can be unavailable or full. */ }
 }
 
 function schedulePoll() {
   clearTimeout(pollTimer);
   if (shuttingDown) return;
-  pollTimer = setTimeout(loadState, model.refresh.running ? 2000 : 60000);
+  const delay = hosted ? 300000 : model.refresh.running ? 2000 : 60000;
+  pollTimer = setTimeout(loadState, delay);
 }
 
 async function loadState() {
@@ -193,33 +197,61 @@ function availableStories(includeHidden = false) {
 }
 
 function rank(stories) {
+  if (hosted) {
+    const now = Date.now();
+    return stories.map(story => {
+      const published = dateOf(story.published_at) || dateOf(story.discovered_at);
+      const ageHours = published ? Math.max(0, (now - published.getTime()) / 3600000) : 168;
+      const score = Math.max(0, 100 - ageHours * 1.8) + Math.min(72, matchesWatch(story).length * 48) + (story.read ? 0 : 8);
+      return { story, score, published };
+    }).sort((a, b) => b.score - a.score || (b.published || 0) - (a.published || 0)).map(item => item.story);
+  }
   return [...stories].sort((a, b) => (Number(b.score) || 0) - (Number(a.score) || 0) || ((dateOf(b.published_at) || 0) - (dateOf(a.published_at) || 0)));
 }
 
-function balancedDigest(stories) {
+function balancedDigest(stories, unfiltered = false) {
   const max = Number(model.settings.digest_size) || 15;
   const result = [];
   const used = new Set();
   const perCategory = {};
   const perSource = {};
-  const sorted = rank(stories);
+  let sorted = rank(stories);
+  function select(story) {
+    const cat = story.category || 'tech';
+    const source = story.source_id || story.source || 'unknown';
+    result.push(story);
+    used.add(story.id);
+    perCategory[cat] = (perCategory[cat] || 0) + 1;
+    perSource[source] = (perSource[source] || 0) + 1;
+  }
+  if (hosted) {
+    sorted = sorted.filter(story => !story.title?.startsWith('Pre-release-shadPS4'));
+    if (unfiltered) {
+      const cutoff = Date.now() - 48 * 3600000;
+      const recent = sorted.filter(story => (dateOf(story.published_at) || 0) >= cutoff);
+      if (recent.length) sorted = recent;
+      for (const key of Object.keys(CATEGORIES)) {
+        if (result.length >= max) break;
+        const story = sorted.find(item => item.category === key);
+        if (story) select(story);
+      }
+    }
+  }
+  const orderedResult = () => hosted ? sorted.filter(story => used.has(story.id)) : result;
   const categoryLimit = Math.max(3, Math.ceil(max / 4));
   const sourceLimit = Math.max(2, Math.ceil(max / 5));
   // Keep the front page varied; progressively relax caps if a narrow filter needs it.
   for (const [categoryCap, sourceCap] of [[categoryLimit, sourceLimit], [categoryLimit + 2, sourceLimit + 1], [max, max]]) {
     for (const story of sorted) {
-      if (result.length >= max) return result;
+      if (result.length >= max) return orderedResult();
       if (used.has(story.id)) continue;
       const cat = story.category || 'tech';
       const source = story.source_id || story.source || 'unknown';
       if ((perCategory[cat] || 0) >= categoryCap || (perSource[source] || 0) >= sourceCap) continue;
-      result.push(story);
-      used.add(story.id);
-      perCategory[cat] = (perCategory[cat] || 0) + 1;
-      perSource[source] = (perSource[source] || 0) + 1;
+      select(story);
     }
   }
-  return result;
+  return orderedResult();
 }
 
 function filteredStories() {
@@ -232,7 +264,7 @@ function filteredStories() {
     const index = new Map(stories.map(story => [story.id, story]));
     return model.digest_ids.map(id => index.get(id)).filter(Boolean);
   }
-  return view === 'today' ? balancedDigest(stories) : rank(stories);
+  return view === 'today' ? balancedDigest(stories, category === 'all' && !query) : rank(stories);
 }
 
 function renderHeading() {
@@ -269,7 +301,7 @@ function renderCounts() {
   const availableIds = new Set(stories.map(story => story.id));
   $('#count-today').textContent = model.digest_ids
     ? model.digest_ids.filter(id => availableIds.has(id)).length
-    : Math.min(stories.length, Number(model.settings.digest_size) || 15);
+    : hosted ? balancedDigest(stories, true).length : Math.min(stories.length, Number(model.settings.digest_size) || 15);
   $('#count-all').textContent = stories.length;
   $('#count-watchlist').textContent = stories.filter(story => matchesWatch(story).length).length;
   $('#count-saved').textContent = model.stories.filter(story => story.saved).length;
@@ -292,7 +324,9 @@ function createStoryCard(story, index) {
   const published = dateOf(story.published_at || story.discovered_at);
   if (published) { time.dateTime = published.toISOString(); time.title = fullDate(published); }
   meta.append(time);
-  card.append(top, title, excerpt, meta);
+  card.append(top, title);
+  if (!hosted || story.excerpt) card.append(excerpt);
+  card.append(meta);
   const matches = matchesWatch(story);
   if (matches.length) {
     const flags = node('div', 'story-flags');
@@ -337,12 +371,12 @@ function renderEmpty() {
   const empty = node('div', 'empty-state');
   empty.append(node('span', 'empty-symbol', '✳'));
   let title = 'Nothing here just yet.';
-  let description = 'Refresh your sources to bring in the latest stories.';
-  let buttonText = 'Refresh feeds';
+  let description = hosted ? 'Check for the latest published edition.' : 'Refresh your sources to bring in the latest stories.';
+  let buttonText = hosted ? 'Reload edition' : 'Refresh feeds';
   let action = refreshFeeds;
   if (!loaded || model.refresh.running) {
     title = 'A little curiosity is on its way.';
-    description = 'Gathering headlines from your sources. The first edition can take a moment; you can leave this page open.';
+    description = hosted ? 'Opening the latest edition.' : 'Gathering headlines from your sources. The first edition can take a moment; you can leave this page open.';
     buttonText = null;
   } else if (query || category !== 'all') {
     title = 'No stories in this corner.';
@@ -361,7 +395,9 @@ function renderEmpty() {
     action = () => openSettings(true);
   } else if (disconnected) {
     title = 'Your reading room is offline.';
-    description = 'Start Morning Signal with its launch shortcut, then try again. Your saved edition is kept on this computer.';
+    description = hosted
+      ? 'Check your connection and try again. This browser keeps a copy of your last edition.'
+      : 'Start Morning Signal with its launch shortcut, then try again. Your saved edition is kept on this computer.';
     buttonText = 'Try again';
     action = loadState;
   } else if (model.sources.length && !model.sources.some(source => source.enabled !== false)) {
@@ -382,23 +418,30 @@ function renderEmpty() {
 function renderRefresh() {
   const refresh = model.refresh;
   const running = Boolean(refresh.running) && !disconnected;
-  $('#refresh-button').disabled = running || shuttingDown;
-  $('#refresh-button').classList.toggle('spinning', running);
-  $('#refresh-label').textContent = running ? 'Gathering…' : 'Refresh feeds';
+  $('#refresh-button').disabled = running || shuttingDown || reloadingEdition;
+  $('#refresh-button').classList.toggle('spinning', running || reloadingEdition);
+  $('#refresh-label').textContent = hosted
+    ? reloadingEdition ? 'Opening…' : 'Reload edition'
+    : running ? 'Gathering…' : 'Refresh feeds';
   $('#refresh-progress').hidden = !running;
   const total = Number(refresh.total) || 0;
   const completed = Number(refresh.completed) || 0;
   $('#refresh-progress-text').textContent = total ? `Checking your sources · ${Math.min(completed, total)} of ${total} complete` : 'Checking your sources…';
   $('#progress-fill').style.width = total ? `${Math.min(100, completed / total * 100)}%` : '12%';
   const refreshedAt = refresh.last_success_at || refresh.finished_at;
-  $('#refresh-time').textContent = disconnected ? 'Local app unavailable' : running ? 'A fresh edition is coming' : refreshedAt ? `Updated ${relativeTime(refreshedAt).toLocaleLowerCase()}` : 'Ready for your first edition';
+  const lastUpdated = refreshedAt ? `Updated ${relativeTime(refreshedAt).toLocaleLowerCase()}` : 'Ready for your first edition';
+  $('#refresh-time').textContent = disconnected ? (hosted ? 'Edition unavailable' : 'Local app unavailable') : running ? 'A fresh edition is coming' : lastUpdated;
   $('#refresh-time').title = fullDate(refreshedAt);
   const notice = $('#notice');
   let text = '';
   let error = false;
   if (shuttingDown) text = 'Morning Signal has stopped. Your reading is saved. Use the launch shortcut to start it again.';
   else if (disconnected) {
-    text = model.stories.length ? 'Showing your last saved edition. Launch Morning Signal again to refresh or save changes.' : 'Morning Signal isn’t running. Use its launch shortcut, then refresh this page.';
+    if (hosted) {
+      text = model.stories.length ? 'Showing the copy saved in this browser. The latest edition could not be loaded.' : 'The edition could not be loaded. Check your connection and try again.';
+    } else {
+      text = model.stories.length ? 'Showing your last saved edition. Launch Morning Signal again to refresh or save changes.' : 'Morning Signal isn’t running. Use its launch shortcut, then refresh this page.';
+    }
     error = true;
   } else if (refresh.error && !running) {
     text = `The latest refresh hit a problem. ${model.stories.length ? 'Your last edition is still here. ' : ''}${String(refresh.error).slice(0, 220)}`;
@@ -452,6 +495,11 @@ function changeView(next) {
 
 async function refreshFeeds() {
   if (model.refresh.running && !disconnected) return;
+  if (hosted) {
+    if (fetching || reloadingEdition) return;
+    reloadingEdition = true;
+    renderRefresh();
+  }
   $('#refresh-button').disabled = true;
   try {
     const data = await api('/api/refresh', {});
@@ -460,15 +508,20 @@ async function refreshFeeds() {
     renderRefresh();
     await loadState();
   } catch (error) {
-    toast('Could not start a refresh. Make sure the local app is running.');
+    toast(hosted ? 'Could not load the latest edition. Please try again.' : 'Could not start a refresh. Make sure the local app is running.');
     disconnected = true;
     renderRefresh();
+  } finally {
+    if (hosted) {
+      reloadingEdition = false;
+      renderRefresh();
+    }
   }
 }
 
 async function updateStory(story, field, value, quietly = false) {
   if (pendingStories.has(story.id)) return;
-  if (disconnected || shuttingDown) { if (!quietly) toast('Start the local app again to save changes.'); return; }
+  if ((!hosted && disconnected) || shuttingDown) { if (!quietly) toast('Start the local app again to save changes.'); return; }
   pendingStories.add(story.id);
   try {
     const result = await api('/api/story', { id: story.id, [field]: value });
@@ -478,7 +531,7 @@ async function updateStory(story, field, value, quietly = false) {
     render();
     if (!quietly) toast(field === 'saved' ? value ? 'Kept for a quieter moment.' : 'Removed from your saved stories.' : value ? 'Marked as read.' : 'Marked as unread.');
   } catch (error) {
-    if (!quietly) toast('That change could not be saved. Please try again.');
+    if (!quietly) toast(hosted ? error.message : 'That change could not be saved. Please try again.');
   } finally { pendingStories.delete(story.id); }
 }
 
@@ -524,7 +577,7 @@ function openSettings(focusWatchlist = false) {
     label.append(input, text);
     sourceSettings.append(label);
   }
-  if (!model.sources.length) sourceSettings.append(node('p', 'field-help', 'Sources will appear when the local app connects.'));
+  if (!model.sources.length) sourceSettings.append(node('p', 'field-help', hosted ? 'Sources will appear when the edition loads.' : 'Sources will appear when the local app connects.'));
   showDialog($('#settings-dialog'));
   if (focusWatchlist) $('#watchlist-input').focus();
 }
@@ -562,7 +615,8 @@ async function saveSettings(event) {
     toast('Your reading room, a little more you.');
     loadState();
   } catch (error) {
-    $('#settings-error').textContent = `Preferences could not be saved. ${error.message || 'Please make sure the local app is running.'}`;
+    const fallback = hosted ? 'Check your browser’s site storage settings.' : 'Please make sure the local app is running.';
+    $('#settings-error').textContent = `Preferences could not be saved. ${error.message || fallback}`;
     $('#settings-error').hidden = false;
   } finally {
     button.disabled = false;
@@ -600,7 +654,7 @@ function renderSources() {
     row.append(dot, info);
     list.append(row);
   }
-  if (!model.sources.length) list.append(node('p', 'dialog-intro', 'Connect to the local app to see your available sources.'));
+  if (!model.sources.length) list.append(node('p', 'dialog-intro', hosted ? 'Sources will appear when the edition loads.' : 'Connect to the local app to see your available sources.'));
 }
 
 function openSources() {
@@ -642,7 +696,22 @@ $$('dialog').forEach(dialog => {
   dialog.addEventListener('cancel', () => { if (lastDialogTrigger && document.contains(lastDialogTrigger)) lastDialogTrigger.focus(); });
 });
 
-$('#shutdown-button').addEventListener('click', async () => {
+if (hosted) {
+  $('#shutdown-button').closest('.shutdown-section').hidden = true;
+  const interval = $('#refresh-minutes').parentElement;
+  interval.hidden = true;
+  interval.parentElement.classList.remove('settings-columns');
+  interval.parentElement.nextElementSibling.textContent = 'Reload edition checks for the latest published digest.';
+  $('#settings-dialog .dialog-intro').textContent = 'Your bookmarks and preferences are saved in this browser.';
+  $('#muted-help').textContent = 'Hide stories whose headlines contain these phrases.';
+  $('#retention-help').nextElementSibling.textContent = 'Use the bookmark icon to keep a story’s headline and link in Saved. Bookmarked stories do not expire.';
+  $('#source-settings').previousElementSibling.textContent = 'Switch sources on or off to shape your edition.';
+  $('.sidebar-note > span:last-child').replaceChildren('Collected from free public feeds.', node('br'), 'Bookmarks are saved in this browser.');
+  $('.page-footer p span').textContent = 'Headlines belong to their publishers. Follow a story to read the original.';
+  $('.local-badge').replaceChildren(node('span', 'health-dot'), document.createTextNode(' WEB EDITION '), node('span', '', 'NO SUBSCRIPTIONS'));
+}
+
+if (!hosted) $('#shutdown-button').addEventListener('click', async () => {
   const button = $('#shutdown-button');
   button.disabled = true;
   try {
@@ -682,7 +751,10 @@ $('#edition-date').textContent = new Intl.DateTimeFormat('en-GB', {
 
 try {
   const cached = localStorage.getItem('morning-signal-state');
-  if (cached) { model = normalizeState(JSON.parse(cached)); loaded = true; }
-} catch { /* A bad browser cache does not affect the server's saved data. */ }
+  if (cached) {
+    model = normalizeState(hosted ? window.morningSignalHosted.restore() : JSON.parse(cached));
+    loaded = true;
+  }
+} catch { /* Continue without a cached edition. */ }
 render();
 loadState();
