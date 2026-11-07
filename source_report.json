@@ -1,0 +1,998 @@
+{
+  "checked_at_utc": "2026-10-15T11:43:35Z",
+  "method": "Direct public feed requests; 6 workers; 8-second timeout; XML parsed with Python standard library; no keys; network-approved probe",
+  "sources": [
+    {
+      "id": "pcgamer",
+      "name": "PC Gamer",
+      "url": "https://www.pcgamer.com/rss/",
+      "category": "gaming",
+      "http_status": 200,
+      "resolved_url": "https://www.pcgamer.com/rss/",
+      "content_type": "application/xml",
+      "status": "failed",
+      "error": "unclosed CDATA section: line 872, column 878865",
+      "sample_count": 0,
+      "elapsed_seconds": 3.27,
+      "recommended": false,
+      "note": "XML truncated at the 2 MB reader safety cap; unclosed CDATA. Use a smaller topic feed or a future larger bounded fetch, not as a default."
+    },
+    {
+      "id": "eurogamer",
+      "name": "Eurogamer",
+      "url": "https://www.eurogamer.net/feed",
+      "category": "gaming",
+      "http_status": 200,
+      "resolved_url": "https://www.eurogamer.net/feed",
+      "content_type": "application/rss+xml; charset=utf-8",
+      "status": "ok",
+      "sample_count": 100,
+      "format": "rss",
+      "samples": [
+        {
+          "title": "007 First Light gets Switch 2 release date, with IO Interactive saying time for \"optimisation and performance\" was needed",
+          "link": "https://www.eurogamer.net/007-first-light-switch-2-release-date-james-bond-game"
+        },
+        {
+          "title": "Big Walk developer explains the lack of Xbox version is due to Microsoft's place on the BDS boycott",
+          "link": "https://www.eurogamer.net/big-walk-xbox-version-bds-boycott"
+        }
+      ],
+      "elapsed_seconds": 0.56,
+      "bytes": 169778,
+      "contains_doctype": false,
+      "contains_entity_declaration": false,
+      "date_example": "Thu, 15 Oct 2026 09:17:26 +0000",
+      "has_publisher_excerpt": true,
+      "recommended": true
+    },
+    {
+      "id": "rps",
+      "name": "Rock Paper Shotgun",
+      "url": "https://www.rockpapershotgun.com/feed",
+      "category": "gaming",
+      "http_status": 200,
+      "resolved_url": "https://www.rockpapershotgun.com/feed",
+      "content_type": "application/rss+xml; charset=utf-8",
+      "status": "ok",
+      "sample_count": 100,
+      "format": "rss",
+      "samples": [
+        {
+          "title": "League of Legends Classic will become a thing of the past in January 2027, though it may one day be resurrected as a limited-time event",
+          "link": "https://www.rockpapershotgun.com/league-of-legends-classic-will-become-a-thing-of-the-past-in-january-2027-though-it-may-one-day-be-resurrected-as-a-limited-time-event"
+        },
+        {
+          "title": "Big Walk devs House House announce support for BDS Microsoft boycott, say the co-op puzzler isn't coming to Xbox",
+          "link": "https://www.rockpapershotgun.com/big-walk-devs-house-house-announce-support-for-bds-microsoft-boycott-say-the-co-op-puzzler-isnt-coming-to-xbox"
+        }
+      ],
+      "elapsed_seconds": 1.02,
+      "bytes": 228814,
+      "contains_doctype": false,
+      "contains_entity_declaration": false,
+      "date_example": "Thu, 15 Oct 2026 11:01:24 +0000",
+      "has_publisher_excerpt": true,
+      "recommended": true
+    },
+    {
+      "id": "wololo",
+      "name": "Wololo",
+      "url": "https://wololo.net/feed/",
+      "category": "gaming",
+      "http_status": 200,
+      "resolved_url": "https://wololo.net/feed/",
+      "content_type": "application/rss+xml; charset=UTF-8",
+      "status": "ok",
+      "sample_count": 20,
+      "format": "rss",
+      "samples": [
+        {
+          "title": "Homebrew Release: Warnel Chawpiovs v1.7.0: adds “Age of Apocalypse” expansion, web version, support for French language, and more",
+          "link": "https://wololo.net/2026/09/24/homebrew-release-warnel-chawpiovs-v1-7-0-adds-age-of-apocalypse-expansion-web-version-support-for-french-language-and-more/"
+        },
+        {
+          "title": "Homebrew Release: Warnel Chawpiovs v1.6.0 (PC, Nintendo Switch, Android), adds “Next Evolution” expansion, improved support for fanmade cards",
+          "link": "https://wololo.net/2026/08/31/homebrew-release-warnel-chawpiovs-v1-6-0-pc-nintendo-switch-android-adds-next-evolution-expansion-improved-support-for-fanmade-cards/"
+        }
+      ],
+      "elapsed_seconds": 3.49,
+      "bytes": 347969,
+      "contains_doctype": false,
+      "contains_entity_declaration": false,
+      "date_example": "Wed, 23 Sep 2026 23:45:05 +0000",
+      "has_publisher_excerpt": true,
+      "recommended": true
+    },
+    {
+      "id": "shadps4",
+      "name": "shadPS4 Releases",
+      "url": "https://github.com/shadps4-emu/shadPS4/releases.atom",
+      "category": "gaming",
+      "http_status": 200,
+      "resolved_url": "https://github.com/shadps4-emu/shadPS4/releases.atom",
+      "content_type": "application/atom+xml; charset=utf-8",
+      "status": "ok",
+      "sample_count": 10,
+      "format": "feed",
+      "samples": [
+        {
+          "title": "Pre-release-shadPS4-2026-10-15-b2d7ec7",
+          "link": "https://github.com/shadps4-emu/shadPS4/releases/tag/Pre-release-shadPS4-2026-10-15-b2d7ec7d31f9ad9426db93afe079db8679b3e1e0"
+        },
+        {
+          "title": "shadps4 v0.20.0 - codename Dead Or Stephen 5 - The Comeback",
+          "link": "https://github.com/shadps4-emu/shadPS4/releases/tag/v.0.20.0"
+        }
+      ],
+      "elapsed_seconds": 1.16,
+      "bytes": 49417,
+      "contains_doctype": false,
+      "contains_entity_declaration": false,
+      "date_example": "2026-10-15T10:48:03Z",
+      "has_publisher_excerpt": false,
+      "recommended": true
+    },
+    {
+      "id": "gamingonlinux",
+      "name": "GamingOnLinux",
+      "url": "https://www.gamingonlinux.com/article_rss.php",
+      "category": "gaming",
+      "http_status": 200,
+      "resolved_url": "https://www.gamingonlinux.com/article_rss.php",
+      "content_type": "application/rss+xml; charset=utf-8",
+      "status": "ok",
+      "sample_count": 50,
+      "format": "rss",
+      "samples": [
+        {
+          "title": "New fighting game Poly Fighter combines roguelike features to build your fighter",
+          "link": "https://www.gamingonlinux.com/2026/10/new-fighting-game-poly-fighter-combines-roguelike-features-to-build-your-fighter/"
+        },
+        {
+          "title": "Humble Bundle has two new bundles full of horror and factory-building games",
+          "link": "https://www.gamingonlinux.com/2026/10/humble-bundle-has-two-new-bundles-full-of-horror-and-factory-building-games/"
+        }
+      ],
+      "elapsed_seconds": 2.07,
+      "bytes": 62126,
+      "contains_doctype": false,
+      "contains_entity_declaration": false,
+      "date_example": "Thu, 15 Oct 2026 09:59:45 +0000",
+      "has_publisher_excerpt": true,
+      "recommended": true
+    },
+    {
+      "id": "ars",
+      "name": "Ars Technica",
+      "url": "https://feeds.arstechnica.com/arstechnica/index",
+      "category": "tech",
+      "http_status": 200,
+      "resolved_url": "https://feeds.arstechnica.com/arstechnica/index",
+      "content_type": "text/xml; charset=utf-8",
+      "status": "ok",
+      "sample_count": 20,
+      "format": "rss",
+      "samples": [
+        {
+          "title": "Fridge hack costing millions and sparking fires stemmed from poor security",
+          "link": "https://arstechnica.com/security/2026/10/fridge-hack-costing-millions-and-sparking-fires-stemmed-from-poor-security/"
+        },
+        {
+          "title": "Epic says its new vibe-coded Epic Games Launcher is faster than Steam",
+          "link": "https://arstechnica.com/gaming/2026/10/programming-is-hard-epic-games-leans-on-vibe-coding-for-its-new-launcher-app/"
+        }
+      ],
+      "elapsed_seconds": 0.58,
+      "bytes": 77870,
+      "contains_doctype": false,
+      "contains_entity_declaration": false,
+      "date_example": "Wed, 14 Oct 2026 21:35:09 +0000",
+      "has_publisher_excerpt": true,
+      "recommended": true
+    },
+    {
+      "id": "hackaday",
+      "name": "Hackaday",
+      "url": "https://hackaday.com/blog/feed/",
+      "category": "tech",
+      "http_status": 200,
+      "resolved_url": "https://hackaday.com/blog/feed/",
+      "content_type": "application/rss+xml; charset=UTF-8",
+      "status": "ok",
+      "sample_count": 7,
+      "format": "rss",
+      "samples": [
+        {
+          "title": "A Thermal Camera That Uses WebUSB",
+          "link": "https://hackaday.com/2026/10/15/a-thermal-camera-that-uses-webusb/"
+        },
+        {
+          "title": "Building An M7 Pan Tilt Head Controller",
+          "link": "https://hackaday.com/2026/10/15/building-an-m7-pan-tilt-head-controller/"
+        }
+      ],
+      "elapsed_seconds": 0.36,
+      "bytes": 50927,
+      "contains_doctype": false,
+      "contains_entity_declaration": false,
+      "date_example": "Thu, 15 Oct 2026 11:00:40 +0000",
+      "has_publisher_excerpt": true,
+      "recommended": true
+    },
+    {
+      "id": "verge",
+      "name": "The Verge",
+      "url": "https://www.theverge.com/rss/index.xml",
+      "category": "tech",
+      "http_status": 200,
+      "resolved_url": "https://www.theverge.com/rss/index.xml",
+      "content_type": "application/xml; charset=UTF-8",
+      "status": "ok",
+      "sample_count": 10,
+      "format": "feed",
+      "samples": [
+        {
+          "title": "Your secrets aren’t safe with this cute robot toy — they’re on Chinese servers ready to be hacked",
+          "link": "https://www.theverge.com/tech/1010727/eiliko-robot-hack-energize-lab"
+        },
+        {
+          "title": "Big Walk skipped Xbox to boycott Microsoft’s involvement with Israel",
+          "link": "https://www.theverge.com/games/1011785/big-walk-house-house-microsoft-xbox-bds-boycott"
+        }
+      ],
+      "elapsed_seconds": 0.29,
+      "bytes": 29333,
+      "contains_doctype": false,
+      "contains_entity_declaration": false,
+      "date_example": "2026-10-15T06:54:19-04:00",
+      "has_publisher_excerpt": true,
+      "recommended": true
+    },
+    {
+      "id": "404media",
+      "name": "404 Media",
+      "url": "https://www.404media.co/rss/",
+      "category": "tech",
+      "http_status": 200,
+      "resolved_url": "https://www.404media.co/rss/",
+      "content_type": "application/rss+xml; charset=utf-8",
+      "status": "ok",
+      "sample_count": 15,
+      "format": "rss",
+      "samples": [
+        {
+          "title": "There’s Nothing Mysterious or Unusual About the Viral German Sexual Harassment Robot",
+          "link": "https://www.404media.co/theres-nothing-mysterious-or-unusual-about-the-viral-german-sexual-harassment-robot/"
+        },
+        {
+          "title": "Character.ai Bankruptcy Is First AI Bubble Domino to Fall",
+          "link": "https://www.404media.co/character-ai-bankruptcy-is-first-ai-bubble-domino-to-fall/"
+        }
+      ],
+      "elapsed_seconds": 1.02,
+      "bytes": 90445,
+      "contains_doctype": false,
+      "contains_entity_declaration": false,
+      "date_example": "Wed, 14 Oct 2026 16:14:54 GMT",
+      "has_publisher_excerpt": true,
+      "recommended": true
+    },
+    {
+      "id": "register",
+      "name": "The Register",
+      "url": "https://www.theregister.com/headlines.atom",
+      "category": "tech",
+      "http_status": 200,
+      "resolved_url": "https://api.theregister.com/api/v1/article?orderBy=published&site_id=2&remapper=rss",
+      "content_type": "application/xml",
+      "status": "ok",
+      "sample_count": 50,
+      "format": "rss",
+      "samples": [
+        {
+          "title": "US Air Force pilots used malware-laden USB drives to plan Afghanistan missions",
+          "link": "https://www.theregister.com/security/2026/10/15/us-air-force-pilots-used-malware-laden-usb-drives-to-plan-afghanistan-missions/5303156"
+        },
+        {
+          "title": "Japanese consortium bets on building bobbing bit barns",
+          "link": "https://www.theregister.com/on-prem/2026/10/15/japanese-consortium-bets-on-building-bobbing-bit-barns/5303191"
+        }
+      ],
+      "elapsed_seconds": 2.11,
+      "bytes": 232999,
+      "contains_doctype": false,
+      "contains_entity_declaration": false,
+      "date_example": "Thu, 15 Oct 2026 12:30:00 +0200",
+      "has_publisher_excerpt": true,
+      "recommended": true
+    },
+    {
+      "id": "bleepingcomputer",
+      "name": "BleepingComputer",
+      "url": "https://www.bleepingcomputer.com/feed/",
+      "category": "tech",
+      "http_status": 200,
+      "resolved_url": "https://www.bleepingcomputer.com/feed/",
+      "content_type": "text/xml; charset=utf-8",
+      "status": "ok",
+      "sample_count": 15,
+      "format": "rss",
+      "samples": [
+        {
+          "title": "Microsoft fixes bug causing Windows black screens, Explorer crashes",
+          "link": "https://www.bleepingcomputer.com/news/microsoft/microsoft-fixes-bug-causing-windows-black-screens-explorer-crashes/"
+        },
+        {
+          "title": "UK Legal Aid Agency: Hackers stole records dating back to 1978",
+          "link": "https://www.bleepingcomputer.com/news/security/uk-legal-aid-agency-hackers-stole-records-dating-back-to-1978/"
+        }
+      ],
+      "elapsed_seconds": 0.26,
+      "bytes": 13475,
+      "contains_doctype": false,
+      "contains_entity_declaration": false,
+      "date_example": "Thu, 15 Oct 2026 05:10:20 -0400",
+      "has_publisher_excerpt": true,
+      "recommended": true
+    },
+    {
+      "id": "variety",
+      "name": "Variety",
+      "url": "https://variety.com/feed/",
+      "category": "culture",
+      "http_status": 200,
+      "resolved_url": "https://variety.com/feed/",
+      "content_type": "application/rss+xml; charset=UTF-8",
+      "status": "ok",
+      "sample_count": 10,
+      "format": "rss",
+      "samples": [
+        {
+          "title": "‘Spider-Man: Brand New Day’ VFX Boss Jerome Chen on Hulk’s Redesign, Finishing 445 Shots in a Week",
+          "link": "https://variety.com/2026/film/news/spider-man-brand-new-day-vfx-boss-jerome-chen-hulk-1236912828/"
+        },
+        {
+          "title": "MK2 Films Scores Brady Corbet, Kleber Mendonça Filho, Céline Sciamma Shorts (EXCLUSIVE)",
+          "link": "https://variety.com/2026/film/global/mk2-brady-corbet-kleber-mendonca-filho-celine-sciamma-1236912755/"
+        }
+      ],
+      "elapsed_seconds": 0.45,
+      "bytes": 21371,
+      "contains_doctype": false,
+      "contains_entity_declaration": false,
+      "date_example": "Thu, 15 Oct 2026 11:01:26 +0000",
+      "has_publisher_excerpt": true,
+      "recommended": true
+    },
+    {
+      "id": "avclub",
+      "name": "The A.V. Club",
+      "url": "https://www.avclub.com/rss",
+      "category": "culture",
+      "http_status": 200,
+      "resolved_url": "https://www.avclub.com/rss.xml",
+      "content_type": "application/rss+xml; charset=utf-8",
+      "status": "failed",
+      "error": "unbound prefix: line 17, column 6",
+      "sample_count": 0,
+      "elapsed_seconds": 2.79,
+      "recommended": false,
+      "note": "Malformed namespace (unbound prefix) rejected by strict XML parser."
+    },
+    {
+      "id": "polygon",
+      "name": "Polygon",
+      "url": "https://www.polygon.com/rss/index.xml",
+      "category": "culture",
+      "http_status": 200,
+      "resolved_url": "https://www.polygon.com/feed/",
+      "content_type": "application/xml; charset=UTF-8",
+      "status": "ok",
+      "sample_count": 10,
+      "format": "rss",
+      "samples": [
+        {
+          "title": "'Avatar' Seven Havens' Finally Fixes 'The Last Airbender's Biggest Mistake",
+          "link": "https://www.polygon.com/avatar-seven-havens-creators-interview-aang/"
+        },
+        {
+          "title": "Big Walk Is Skipping Xbox as Part of the Pro-Palestinian BDS Boycott",
+          "link": "https://www.polygon.com/big-walk-skipping-xbox-palestinian-bds-boycott/"
+        }
+      ],
+      "elapsed_seconds": 2.67,
+      "bytes": 16642,
+      "contains_doctype": false,
+      "contains_entity_declaration": false,
+      "date_example": "Thu, 15 Oct 2026 11:00:16 GMT",
+      "has_publisher_excerpt": true,
+      "recommended": true
+    },
+    {
+      "id": "kym",
+      "name": "Know Your Meme",
+      "url": "https://knowyourmeme.com/newsfeed.rss",
+      "category": "culture",
+      "http_status": 200,
+      "resolved_url": "https://knowyourmeme.com/newsfeed.rss",
+      "content_type": "application/rss+xml; charset=utf-8",
+      "status": "ok",
+      "sample_count": 5,
+      "format": "rss",
+      "samples": [
+        {
+          "title": "Overweight Edits Of Talking Tom And Angela Are Spreading On X, TikTok",
+          "link": "https://knowyourmeme.com/memes/fat-talking-tom-and-angela"
+        },
+        {
+          "title": "Where Did Tra La La SpongeBob Come From? Meme Explained",
+          "link": "https://knowyourmeme.com/memes/tra-la-la-spongebob"
+        }
+      ],
+      "elapsed_seconds": 1.11,
+      "bytes": 4993,
+      "contains_doctype": false,
+      "contains_entity_declaration": false,
+      "date_example": "Wed, 14 Oct 2026 16:24:30 -0400",
+      "has_publisher_excerpt": true,
+      "recommended": true
+    },
+    {
+      "id": "sciencedaily",
+      "name": "ScienceDaily",
+      "url": "https://www.sciencedaily.com/rss/top/science.xml",
+      "category": "science",
+      "http_status": 200,
+      "resolved_url": "https://www.sciencedaily.com/rss/top/science.xml",
+      "content_type": "application/xml",
+      "status": "ok",
+      "sample_count": 60,
+      "format": "rss",
+      "samples": [
+        {
+          "title": "A forgotten fossil reveals a fearsome dinosaur with giant claws",
+          "link": "https://www.sciencedaily.com/releases/2026/10/261014015457.htm"
+        },
+        {
+          "title": "Gigantic prehistoric snake discovered in India may have been one of the largest ever",
+          "link": "https://www.sciencedaily.com/releases/2026/10/261014001406.htm"
+        }
+      ],
+      "elapsed_seconds": 1.14,
+      "recommended": false,
+      "note": "Excluded from defaults: publisher RSS terms restrict database storage and altered excerpts; use ScienceAlert/Smithsonian."
+    },
+    {
+      "id": "phys",
+      "name": "Phys.org",
+      "url": "https://phys.org/rss-feed/",
+      "category": "science",
+      "http_status": 200,
+      "resolved_url": "https://phys.org/rss-feed/",
+      "content_type": "text/xml;charset=UTF-8",
+      "status": "ok",
+      "sample_count": 30,
+      "format": "rss",
+      "samples": [
+        {
+          "title": "Early growth differences help explain which beech trees survive forest competition",
+          "link": "https://phys.org/news/2026-10-early-growth-differences-beech-trees.html"
+        },
+        {
+          "title": "Green space is linked with fewer gun-related homicides—but not everywhere",
+          "link": "https://phys.org/news/2026-10-green-space-linked-gun-homicides.html"
+        }
+      ],
+      "elapsed_seconds": 0.88,
+      "recommended": false,
+      "note": "Working fallback; Smithsonian selected to diversify publishers and avoid overlap with the Phys.org animal feed."
+    },
+    {
+      "id": "nasa",
+      "name": "NASA Science",
+      "url": "https://science.nasa.gov/feed/",
+      "category": "science",
+      "http_status": 200,
+      "resolved_url": "https://science.nasa.gov/feed/",
+      "content_type": "application/rss+xml; charset=UTF-8",
+      "status": "failed",
+      "error": "not well-formed (invalid token): line 8, column 45",
+      "sample_count": 0,
+      "elapsed_seconds": 1.02,
+      "recommended": false,
+      "note": "science.nasa.gov/feed returned non-XML content; use www.nasa.gov/feed."
+    },
+    {
+      "id": "nasanews",
+      "name": "NASA",
+      "url": "https://www.nasa.gov/feed/",
+      "category": "science",
+      "http_status": 200,
+      "resolved_url": "https://www.nasa.gov/feed/",
+      "content_type": "application/rss+xml; charset=UTF-8",
+      "status": "ok",
+      "sample_count": 10,
+      "format": "rss",
+      "samples": [
+        {
+          "title": "APOD: 2026 October 15 – The Milky Way over Manhattan",
+          "link": "https://science.nasa.gov/image-article/apod-2026-october-15-the-milky-way-over-manhattan/"
+        },
+        {
+          "title": "Fires Arrive in the Amazon Rainforest",
+          "link": "https://science.nasa.gov/earth/earth-observatory/fires-arrive-in-the-amazon-rainforest/"
+        }
+      ],
+      "elapsed_seconds": 0.17,
+      "bytes": 252690,
+      "contains_doctype": false,
+      "contains_entity_declaration": false,
+      "date_example": "Thu, 15 Oct 2026 04:05:00 +0000",
+      "has_publisher_excerpt": true,
+      "recommended": true
+    },
+    {
+      "id": "mongabay",
+      "name": "Mongabay",
+      "url": "https://news.mongabay.com/feed/",
+      "category": "animals",
+      "http_status": 200,
+      "resolved_url": "https://news.mongabay.com/feed/",
+      "content_type": "text/xml; charset=UTF-8",
+      "status": "ok",
+      "sample_count": 32,
+      "format": "rss",
+      "samples": [
+        {
+          "title": "Nations at southern bluefin tuna meeting stop short of adopting new seabird protections",
+          "link": "https://news.mongabay.com/2026/10/nations-at-southern-bluefin-tuna-meeting-stop-short-of-adopting-new-seabird-protections/"
+        },
+        {
+          "title": "Belize looks to the deep sea to complete its 30% ocean protection pledge",
+          "link": "https://news.mongabay.com/2026/10/belize-looks-to-the-deep-sea-to-complete-its-30-ocean-protection-pledge/"
+        }
+      ],
+      "elapsed_seconds": 0.24,
+      "bytes": 124298,
+      "contains_doctype": false,
+      "contains_entity_declaration": false,
+      "date_example": "15 Oct 2026 10:17:25 +0000",
+      "has_publisher_excerpt": true,
+      "recommended": true
+    },
+    {
+      "id": "sciencedailyanimals",
+      "name": "ScienceDaily Animals",
+      "url": "https://www.sciencedaily.com/rss/plants_animals/animals.xml",
+      "category": "animals",
+      "http_status": 200,
+      "resolved_url": "https://www.sciencedaily.com/rss/plants_animals/animals.xml",
+      "content_type": "application/xml",
+      "status": "ok",
+      "sample_count": 60,
+      "format": "rss",
+      "samples": [
+        {
+          "title": "A forgotten fossil reveals a fearsome dinosaur with giant claws",
+          "link": "https://www.sciencedaily.com/releases/2026/10/261014015457.htm"
+        },
+        {
+          "title": "Gigantic prehistoric snake discovered in India may have been one of the largest ever",
+          "link": "https://www.sciencedaily.com/releases/2026/10/261014001406.htm"
+        }
+      ],
+      "elapsed_seconds": 1.05,
+      "recommended": false,
+      "note": "Excluded from defaults: publisher RSS terms restrict database storage and altered excerpts; use Phys.org Plants & Animals."
+    },
+    {
+      "id": "racefans",
+      "name": "RaceFans",
+      "url": "https://www.racefans.net/feed/",
+      "category": "motorsport",
+      "http_status": 200,
+      "resolved_url": "https://www.racefans.net/feed/",
+      "content_type": "application/rss+xml; charset=UTF-8",
+      "status": "ok",
+      "sample_count": 20,
+      "format": "rss",
+      "samples": [
+        {
+          "title": "Colapinto tells his supporters to stop abusing rival drivers: “They don’t help me” | Formula 1",
+          "link": "https://www.racefans.net/2026/10/15/colapinto-tells-his-supporters-to-stop-abusing-rival-drivers-they-dont-help-me/"
+        },
+        {
+          "title": "Social Media: Mekies extends contract to lead Red Bull until 2031 | Brief",
+          "link": "https://www.racefans.net/2026/10/14/social-media-mekies-extends-contract-to-lead-red-bull-until-2031/"
+        }
+      ],
+      "elapsed_seconds": 1.38,
+      "bytes": 23198,
+      "contains_doctype": false,
+      "contains_entity_declaration": false,
+      "date_example": "Thu, 15 Oct 2026 07:47:03 +0000",
+      "has_publisher_excerpt": true,
+      "recommended": true
+    },
+    {
+      "id": "motorsport",
+      "name": "Motorsport.com F1",
+      "url": "https://www.motorsport.com/rss/f1/news/",
+      "category": "motorsport",
+      "http_status": 200,
+      "resolved_url": "https://www.motorsport.com/rss/f1/news/",
+      "content_type": "application/xml; charset=utf-8",
+      "status": "ok",
+      "sample_count": 50,
+      "format": "rss",
+      "samples": [
+        {
+          "title": "Max Verstappen vs Valentino Rossi: How their GT3 cars compare",
+          "link": "https://www.motorsport.com/f1/news/max-verstappen-vs-valentino-rossi-how-their-gt3-cars-compare/10865344/?utm_source=RSS&utm_medium=referral&utm_campaign=RSS-F1&utm_term=News&utm_content=www"
+        },
+        {
+          "title": "Max Verstappen: FAQ on his GTWC Europe debut",
+          "link": "https://www.motorsport.com/f1/news/max-verstappen-faq-on-his-gtwc-europe-debut/10865181/?utm_source=RSS&utm_medium=referral&utm_campaign=RSS-F1&utm_term=News&utm_content=www"
+        }
+      ],
+      "elapsed_seconds": 0.18,
+      "bytes": 70880,
+      "contains_doctype": false,
+      "contains_entity_declaration": false,
+      "date_example": "Thu, 15 Oct 2026 11:15:50 +0000",
+      "has_publisher_excerpt": true,
+      "recommended": true
+    },
+    {
+      "id": "crash",
+      "name": "Crash F1",
+      "url": "https://www.crash.net/rss/f1",
+      "category": "motorsport",
+      "http_status": 200,
+      "resolved_url": "https://www.crash.net/rss/f1",
+      "content_type": "application/rss+xml; charset=utf-8",
+      "status": "ok",
+      "sample_count": 50,
+      "format": "rss",
+      "samples": [
+        {
+          "title": "Better than Mercedes? Valtteri Bottas makes huge Cadillac F1 claim",
+          "link": "https://www.crash.net/f1/news/1107575/1/better-mercedes-valtteri-bottas-makes-huge-cadillac-f1-claim"
+        },
+        {
+          "title": "Christian Horner’s Fernando Alonso and Charles Leclerc plan that was blocked by Red Bull",
+          "link": "https://www.crash.net/f1/news/1107573/1/christian-horners-fernando-alonso-and-charles-leclerc-plan-was-blocked-red-bull"
+        }
+      ],
+      "elapsed_seconds": 0.5,
+      "bytes": 40475,
+      "contains_doctype": false,
+      "contains_entity_declaration": false,
+      "date_example": "Thu, 15 Oct 2026 10:37:35 +0100\n",
+      "has_publisher_excerpt": true,
+      "recommended": false,
+      "note": "Working fallback; Hacker News chosen in its place for more technical-project discovery while retaining two motorsport sources."
+    },
+    {
+      "id": "autosport",
+      "name": "Autosport F1",
+      "url": "https://www.autosport.com/rss/f1/news/",
+      "category": "motorsport",
+      "http_status": 200,
+      "resolved_url": "https://www.autosport.com/rss/f1/news/",
+      "content_type": "application/xml; charset=utf-8",
+      "status": "ok",
+      "sample_count": 50,
+      "format": "rss",
+      "samples": [
+        {
+          "title": "Mekies extends contract as Red Bull's F1 team boss",
+          "link": "https://www.autosport.com/f1/news/laurent-mekies-extends-contract-as-red-bulls-f1-team-boss/10865235/?utm_source=RSS&utm_medium=referral&utm_campaign=RSS-F1&utm_term=News&utm_content=uk"
+        },
+        {
+          "title": "Five key takeaways from F1's big African Grand Prix reveal in Rwanda",
+          "link": "https://www.autosport.com/f1/news/five-key-takeaways-from-f1s-big-african-grand-prix-reveal-in-rwanda/10865014/?utm_source=RSS&utm_medium=referral&utm_campaign=RSS-F1&utm_term=News&utm_content=uk"
+        }
+      ],
+      "elapsed_seconds": 1.1,
+      "recommended": false,
+      "note": "Working fallback; overlaps with Motorsport.com under the same publisher group."
+    },
+    {
+      "id": "lowyat",
+      "name": "Lowyat.NET",
+      "url": "https://www.lowyat.net/feed/",
+      "category": "local",
+      "http_status": 200,
+      "resolved_url": "https://www.lowyat.net/feed/",
+      "content_type": "application/rss+xml; charset=UTF-8",
+      "status": "ok",
+      "sample_count": 10,
+      "format": "rss",
+      "samples": [
+        {
+          "title": "CelcomDigi Secures Additional 2600MHz, 900MHz Spectrum From MCMC",
+          "link": "https://www.lowyat.net/2026/407497/celcomdigi-additional-spectrum-mcmc/"
+        },
+        {
+          "title": "Cashku Partners With Muamalat Invest To Expand Shariah-Compliant Investment Options",
+          "link": "https://www.lowyat.net/2026/407492/cashku-partners-with-muamalat-invest/"
+        }
+      ],
+      "elapsed_seconds": 0.77,
+      "bytes": 128455,
+      "contains_doctype": false,
+      "contains_entity_declaration": false,
+      "date_example": "Thu, 15 Oct 2026 10:21:47 +0000",
+      "has_publisher_excerpt": true,
+      "recommended": true
+    },
+    {
+      "id": "soyacincau",
+      "name": "SoyaCincau",
+      "url": "https://soyacincau.com/feed/",
+      "category": "local",
+      "http_status": 200,
+      "resolved_url": "https://soyacincau.com/feed/",
+      "content_type": "application/rss+xml; charset=UTF-8",
+      "status": "ok",
+      "sample_count": 10,
+      "format": "rss",
+      "samples": [
+        {
+          "title": "Samsung Health: You can now start Sleep Coaching with just three days of data",
+          "link": "https://soyacincau.com/2026/10/15/samsung-health-you-can-now-start-sleep-coaching-with-just-three-days-of-data/"
+        },
+        {
+          "title": "ColorOS 17 coming to Malaysia with Living Flow UI, System-Level AI Agents and 6-year smoothness guarantee",
+          "link": "https://soyacincau.com/2026/10/15/coloros-17-coming-to-malaysia-with-living-flow-ui-system-level-ai-agents-and-6-year-smoothness-guarantee/"
+        }
+      ],
+      "elapsed_seconds": 0.14,
+      "bytes": 89405,
+      "contains_doctype": false,
+      "contains_entity_declaration": false,
+      "date_example": "Thu, 15 Oct 2026 11:33:58 +0000",
+      "has_publisher_excerpt": true,
+      "recommended": true
+    },
+    {
+      "id": "paultan",
+      "name": "Paul Tan",
+      "url": "https://paultan.org/feed/",
+      "category": "local",
+      "http_status": 200,
+      "resolved_url": "https://paultan.org/feed/",
+      "content_type": "application/rss+xml; charset=UTF-8",
+      "status": "ok",
+      "sample_count": 20,
+      "format": "rss",
+      "samples": [
+        {
+          "title": "ACE 2026: Purchase a Dongfeng Vigo and get a RM8,888 instant discount – RM3k vouchers, RM57k in prizes",
+          "link": "https://paultan.org/2026/10/15/ace-2026-purchase-a-dongfeng-vigo-and-get-a-rm8888-instant-discount-rm3k-vouchers-rm57k-in-prizes/"
+        },
+        {
+          "title": "ACE 2026: Proton eMas 7 with up to RM10k trade-in support, RM7k rebate; eMas 5 up to RM3k rebate",
+          "link": "https://paultan.org/2026/10/15/ace-2026-proton-emas-7-with-up-to-rm10k-trade-in-support-rm7k-rebate-emas-5-up-to-rm3k-rebate/"
+        }
+      ],
+      "elapsed_seconds": 0.75,
+      "bytes": 345810,
+      "contains_doctype": false,
+      "contains_entity_declaration": false,
+      "date_example": "Thu, 15 Oct 2026 09:22:43 +0000",
+      "has_publisher_excerpt": true,
+      "recommended": true
+    },
+    {
+      "id": "malaymail",
+      "name": "Malay Mail Malaysia",
+      "url": "https://www.malaymail.com/feed/rss/malaysia",
+      "category": "local",
+      "http_status": 200,
+      "resolved_url": "https://www.malaymail.com/feed/rss/malaysia",
+      "content_type": "text/xml; charset=UTF-8",
+      "status": "ok",
+      "sample_count": 50,
+      "format": "rss",
+      "samples": [
+        {
+          "title": "Penang statutory body chief pleads not guilty to 15 graft charges totalling RM800,000",
+          "link": "https://www.malaymail.com/news/malaysia/2026/10/15/penang-statutory-body-chief-pleads-not-guilty-to-15-graft-charges-totalling-rm800000/239242"
+        },
+        {
+          "title": "Court of Appeal upholds 30‑year jail, 12 strokes for trader who hid step‑brother’s body in cement drum",
+          "link": "https://www.malaymail.com/news/malaysia/2026/10/15/court-of-appeal-upholds-30year-jail-12-strokes-for-trader-who-hid-stepbrothers-body-in-cement-drum/239240"
+        }
+      ],
+      "elapsed_seconds": 0.4,
+      "recommended": false,
+      "note": "Working fallback; broad Malaysia feed adds general politics beyond initial focus."
+    },
+    {
+      "id": "sciencealert",
+      "name": "ScienceAlert",
+      "url": "https://www.sciencealert.com/feed",
+      "category": "science",
+      "http_status": 200,
+      "resolved_url": "https://www.sciencealert.com/feed",
+      "content_type": "application/rss+xml; charset=UTF-8",
+      "status": "ok",
+      "sample_count": 10,
+      "format": "rss",
+      "samples": [
+        {
+          "title": "Axolotls Have a Surprisingly Clever Ability, Even in Complete Darkness",
+          "link": "https://www.sciencealert.com/axolotls-have-a-surprisingly-clever-ability-even-in-complete-darkness"
+        },
+        {
+          "title": "In a Huge First, Physicists May Have Found a Shortcut to Fusion Energy",
+          "link": "https://www.sciencealert.com/in-a-huge-first-physicists-may-have-found-a-shortcut-to-fusion-energy"
+        }
+      ],
+      "elapsed_seconds": 1.29,
+      "bytes": 32919,
+      "contains_doctype": false,
+      "contains_entity_declaration": false,
+      "date_example": "Thu, 15 Oct 2026 11:00:00 +0000",
+      "has_publisher_excerpt": true,
+      "recommended": true
+    },
+    {
+      "id": "physanimals",
+      "name": "Phys.org Plants & Animals",
+      "url": "https://phys.org/rss-feed/biology-news/plants-animals/",
+      "category": "animals",
+      "http_status": 200,
+      "resolved_url": "https://phys.org/rss-feed/biology-news/plants-animals/",
+      "content_type": "text/xml;charset=UTF-8",
+      "status": "ok",
+      "sample_count": 30,
+      "format": "rss",
+      "samples": [
+        {
+          "title": "Early growth differences help explain which beech trees survive forest competition",
+          "link": "https://phys.org/news/2026-10-early-growth-differences-beech-trees.html"
+        },
+        {
+          "title": "Ascension Island: How a planting project created a lush cloud forest",
+          "link": "https://phys.org/news/2026-10-ascension-island-lush-cloud-forest.html"
+        }
+      ],
+      "elapsed_seconds": 1.05,
+      "bytes": 30132,
+      "contains_doctype": false,
+      "contains_entity_declaration": false,
+      "date_example": "Thu, 15 Oct 2026 07:20:01 EDT",
+      "has_publisher_excerpt": true,
+      "recommended": true
+    },
+    {
+      "id": "livescienceanimals",
+      "name": "Live Science Animals",
+      "url": "https://www.livescience.com/feeds/animals",
+      "category": "animals",
+      "status": "failed",
+      "error": "HTTP Error 404: Not Found",
+      "sample_count": 0,
+      "elapsed_seconds": 4.25,
+      "recommended": false,
+      "note": "404 endpoint; do not include as default."
+    },
+    {
+      "id": "smithsonian",
+      "name": "Smithsonian Science & Nature",
+      "url": "https://www.smithsonianmag.com/rss/science-nature/",
+      "category": "science",
+      "http_status": 200,
+      "resolved_url": "https://www.smithsonianmag.com/rss/science-nature/",
+      "content_type": "application/xml",
+      "status": "ok",
+      "sample_count": 15,
+      "format": "rss",
+      "samples": [
+        {
+          "title": "Five Discoveries That Changed Our Understanding of T. Rex Forever, From Warm Blood to Lips",
+          "link": "https://www.smithsonianmag.com/science-nature/five-discoveries-that-changed-our-understanding-of-t-rex-forever-from-warm-blood-to-lips-180989634/"
+        },
+        {
+          "title": "Ancient Pottery Reveals the Earliest Known Traces of Chocolate East of the Mississippi, Painting a Picture of Connection in the Americas",
+          "link": "https://www.smithsonianmag.com/science-nature/ancient-pottery-reveals-the-earliest-known-traces-of-chocolate-east-of-the-mississippi-painting-a-picture-of-connection-in-the-americas-180989559/"
+        }
+      ],
+      "elapsed_seconds": 0.4,
+      "bytes": 16083,
+      "contains_doctype": false,
+      "contains_entity_declaration": false,
+      "date_example": "Wed, 07 Oct 2026 17:15:01 +0000",
+      "has_publisher_excerpt": true,
+      "recommended": true
+    },
+    {
+      "id": "earthtouch",
+      "name": "Earth Touch",
+      "url": "https://www.earthtouchnews.com/rss.xml",
+      "category": "animals",
+      "status": "failed",
+      "error": "The read operation timed out",
+      "sample_count": 0,
+      "elapsed_seconds": 9.21,
+      "recommended": false,
+      "note": "Timed out within bounded probe; do not include as default."
+    },
+    {
+      "id": "hackernews",
+      "name": "Hacker News",
+      "url": "https://news.ycombinator.com/rss",
+      "category": "tech",
+      "http_status": 200,
+      "resolved_url": "https://news.ycombinator.com/rss",
+      "status": "ok",
+      "sample_count": 30,
+      "bytes": 11353,
+      "format": "rss",
+      "contains_doctype": false,
+      "contains_entity_declaration": false,
+      "elapsed_seconds": 0.72,
+      "samples": [
+        {
+          "title": "Things to know when you get cancer",
+          "link": "https://jjmaxwell4.com/writing/things-to-know-when-you-get-cancer/"
+        },
+        {
+          "title": "Wanted to download an ISO, ended up writing a kernel exploit",
+          "link": "https://blog.dfb.sh/blog/eap770-root-for-two-zeros/"
+        }
+      ],
+      "note": "Public Hacker News RSS for community technical-project discovery. Its articles are linked external sources, not independently verified news.",
+      "recommended": true
+    }
+  ],
+  "recommended_count": 25,
+  "policy_references": [
+    {
+      "publisher": "ScienceDaily",
+      "url": "https://www.sciencedaily.com/terms.htm",
+      "note": "Feed headlines/summaries require publisher attribution and unchanged links/text; database storage is restricted. ScienceDaily feeds are not recommended for this app."
+    },
+    {
+      "publisher": "Ars Technica",
+      "url": "https://arstechnica.com/rss-feeds/",
+      "note": "Official feed directory; paid subscriber full-text feeds are separate and not used."
+    },
+    {
+      "publisher": "Mongabay",
+      "url": "https://mongabay.com/faq/",
+      "note": "Extended/full-article redistribution requires publisher permission where not otherwise licensed; app uses feed excerpts and links."
+    }
+  ],
+  "configured_ids": [
+    "ars",
+    "verge",
+    "hackernews",
+    "hackaday",
+    "bleepingcomputer",
+    "404media",
+    "register",
+    "eurogamer",
+    "rps",
+    "gamingonlinux",
+    "wololo",
+    "shadps4",
+    "variety",
+    "polygon",
+    "kym",
+    "smithsonian",
+    "nasanews",
+    "sciencealert",
+    "mongabay",
+    "physanimals",
+    "racefans",
+    "motorsport",
+    "soyacincau",
+    "lowyat",
+    "paultan"
+  ]
+}
