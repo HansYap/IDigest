@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import re
 import shutil
 import sys
 from tempfile import TemporaryDirectory
@@ -16,10 +17,12 @@ if __package__ in (None, ""):
 from news_engine import CATEGORIES, NewsEngine, REFRESH_SECONDS
 
 
+WEBSITE_ICON = "favicon-sunrise.svg"
 ASSETS = {
     "app.js": "static/app.js",
     "styles.css": "static/styles.css",
     "favicon.svg": "favicon.svg",
+    "website-icon.svg": WEBSITE_ICON,
     "hosted.js": "hosted.js",
     "website.css": "static/website.css",
     **{f"illustrations/{category}.svg": f"static/category-{category}.svg" for category in CATEGORIES},
@@ -105,6 +108,13 @@ def build_pages(output: Path) -> int:
     check_output_directory(output)
     static = ROOT / "static"
     html = (static / "index.html").read_text(encoding="utf-8")
+    html, icons_replaced = re.subn(
+        r'<link rel="icon"[^>]*>',
+        f'<link rel="icon" type="image/svg+xml" href="/{WEBSITE_ICON}">',
+        html,
+    )
+    if icons_replaced != 1:
+        raise RuntimeError("Expected one browser-tab icon in the HTML template.")
     if html.count(APP_SCRIPT) != 1:
         raise RuntimeError("Could not find the app script in the HTML template.")
     html = html.replace(

@@ -17,6 +17,8 @@ class PagesBuildTests(unittest.TestCase):
             html = (output / "index.html").read_text(encoding="utf-8")
             self.assertIn('href="/static/website.css"', html)
             self.assertIn('<body class="web-edition">', html)
+            self.assertIn('<link rel="icon" type="image/svg+xml" href="/favicon-sunrise.svg">', html)
+            self.assertTrue((output / "favicon-sunrise.svg").is_file())
             self.assertTrue((output / "static" / "website.css").is_file())
             for category in CATEGORIES:
                 with self.subTest(category=category):
