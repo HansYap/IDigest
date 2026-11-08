@@ -1,30 +1,24 @@
 # Current handoff
 
-Updated 7 November 2026, Malaysia time. Verify dated claims before continuing.
+Updated 8 November 2026, Malaysia time.
 
 ## Baseline and outcome
 
-- Baseline is `main` at human commit `9ede282` (Add repository guidance and human-owned commit workflow). The three documentation files below already had uncommitted reading-limit and session-rule edits before this correction.
-- This development-only change aligns sessions with Walking Labs: fresh context starts a session; compaction stays within it; successful completion requires verified work and a clean handoff. Removed the manual command protocol and status field. Retained selective reading, size targets, and history archiving.
-- Human-only commits and plain-language chat reports remain required.
+- Started from a clean `main` at human commit `a2ecb0d` (Align session guidance with Walking Labs).
+- The **website** now uses the approved magazine-style layout with a masthead, illustrated lead, brief stories, and a grid below. Each of the seven categories has a reusable original illustration and a visible text label. The same artwork follows a story through the topic filters, search, and Saved.
+- The Windows reader retains its existing layout and SQLite storage. The website continues to use the existing browser storage for bookmarks, reading history, preferences, and backups.
 
 ## Working tree and publication
 
-- **Local:** uncommitted edits to `AGENTS.md`, `docs/DEVELOPMENT.md`, and `PROGRESS.md`. Nothing staged, committed, pushed, or deployed by the agent.
-- **GitHub:** local `origin/main` points at `9ede282`. The remote was not rechecked in this follow-up.
-- **Live:** at the previous direct check on 7 November, reader scripts matched `d411391`, publishing unread filtering and website backups. The [edition](https://idigest.pages.dev/edition.json) had 600 headlines and `refresh.last_success_at` of 22:34:38 +08:00. Live state was not rechecked for this documentation-only follow-up.
-- Start Windows with `Start Morning Signal.cmd`. Read relevant [README](README.md) sections for other usage or deployment instructions.
+- **Local** edits in [the website stylesheet](static/website.css), [the shared reader](static/app.js), [the Pages builder](scripts/build_pages.py), [illustrations](static/illustrations), [build tests](tests/test_pages_build.py), README, and this handoff are ready for review and a manual commit.
+- **GitHub** `main` was checked directly and points to `a2ecb0d`. The redesign is local.
+- **Live** at the earlier check on 8 November, the [scheduled request](https://github.com/HansYap/IDigest/actions/runs/42435146286) succeeded around 09:39 Malaysia time, later than the configured 06:30. The [edition](https://idigest.pages.dev/edition.json) reported 600 headlines and a 09:39:08 refresh. That check predates the redesign.
 
 ## Verification
 
-- Current checks: definitions reviewed against Lectures 5 and 12; document sizes, local links, and referenced paths passed; `git diff --check` passed. Only the three intended documents changed and nothing is staged. Application tests were not rerun for documentation-only edits.
-- Earlier evidence: 36 Python tests and feature browser checks passed before the documentation work. The previous document change passed a fresh-context agent review. Those checks were not repeated for this follow-up.
-- See [the development guide](docs/DEVELOPMENT.md) for task-specific checks and [history](docs/HISTORY.md) only when investigating past decisions.
+- All 37 Python tests passed. Both browser scripts passed syntax checks. The seven category files parsed as SVG and total about 13 KB. `git diff --check` passed.
+- The real Pages builder produced only allowlisted files with synthetic stories. Chrome checks at desktop and phone widths covered the lead layout, all seven artwork mappings, search, category and unread filters, bookmark persistence, and access to website backup controls. The Windows server was checked with temporary data and displayed its existing layout.
 
-## Next actions
+## Next action
 
-1. Documentation checks are complete. The human can review and manually commit the three files using the draft in chat.
-2. After the schedule around 06:30 Malaysia time on 8 November, inspect [the publication workflow](https://github.com/HansYap/IDigest/actions/workflows/publish-edition.yml). Verify a scheduled run actually sends the build request, then a newer live edition appears. The last observed run was manual; a green status can also mean a missing hook was skipped.
-3. If the request succeeds but the edition stays old, check its Cloudflare deployment. Keep the hook URL private.
-
-No implementation blocker is known.
+Review the local changes and manually commit them. Once a publication is authorized and complete, open the live digest on desktop and mobile and check that the lead, category illustrations, and saved stories load.

@@ -14,6 +14,7 @@ const CATEGORIES = {
 };
 const ICONS = {
   sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/>',
+  sunrise: '<path d="M3 17h18M6 20h12m-8 3h4M6 15a6 6 0 0 1 12 0M12 2v3M5 5l2 3m12-3-2 3M2 11l3 1m17-1-3 1"/>',
   grid: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
   radar: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 12l7-7"/><circle cx="12" cy="12" r="1"/>',
   bookmark: '<path d="M6 3h12v18l-6-4-6 4z"/>',
@@ -276,7 +277,8 @@ function renderHeading() {
   };
   const values = titles[view];
   $('#page-eyebrow').textContent = values[0];
-  $('#page-title').replaceChildren(document.createTextNode(values[1]), node('br'), node('em', '', values[2]));
+  if (hosted) $('#page-title').textContent = $(`.nav-item[data-view="${view}"] > span:nth-child(2)`).textContent;
+  else $('#page-title').replaceChildren(document.createTextNode(values[1]), node('br'), node('em', '', values[2]));
   const keepDays = Number(model.settings.retention_days) || 30;
   $('#page-description').textContent = view === 'all'
     ? `Unsaved stories expire after ${keepDays} ${keepDays === 1 ? 'day' : 'days'}. Bookmark anything you want to keep longer.`
@@ -307,9 +309,11 @@ function renderCounts() {
   $('#count-saved').textContent = model.stories.filter(story => story.saved).length;
 }
 
-function createStoryCard(story, index) {
-  const info = CATEGORIES[story.category] || CATEGORIES.tech;
-  const card = node('article', `story-card${view === 'today' && index === 0 ? ' featured' : ''}${story.read ? ' is-read' : ''}`);
+function createStoryCard(story, index, featured = false) {
+  const categoryKey = story.category !== 'all' && Object.hasOwn(CATEGORIES, story.category) ? story.category : 'tech';
+  const info = CATEGORIES[categoryKey];
+  const card = node('article', `story-card${featured ? ' featured' : ''}${story.read ? ' is-read' : ''}`);
+  const content = hosted ? node('div', 'story-copy') : card;
   card.style.setProperty('--category-color', info.color);
   const top = node('div', 'story-topline');
   top.append(node('span', 'category-tag', info.label), node('span', 'story-number', String(index + 1).padStart(2, '0')));
@@ -324,14 +328,14 @@ function createStoryCard(story, index) {
   const published = dateOf(story.published_at || story.discovered_at);
   if (published) { time.dateTime = published.toISOString(); time.title = fullDate(published); }
   meta.append(time);
-  card.append(top, title);
-  if (!hosted || story.excerpt) card.append(excerpt);
-  card.append(meta);
+  content.append(top, title);
+  if (!hosted || story.excerpt) content.append(excerpt);
+  content.append(meta);
   const matches = matchesWatch(story);
   if (matches.length) {
     const flags = node('div', 'story-flags');
     flags.append(...matches.slice(0, 3).map(match => node('span', 'watch-match', `Watching: ${match}`)));
-    card.append(flags);
+    content.append(flags);
   }
   if (Array.isArray(story.related_sources) && story.related_sources.length) {
     const related = node('div', 'related-sources', 'Also covered by ');
@@ -340,7 +344,7 @@ function createStoryCard(story, index) {
       if (typeof source === 'string') related.append(document.createTextNode(source));
       else related.append(linkTo(source.url, source.name || source.source || 'another source'));
     });
-    card.append(related);
+    content.append(related);
   }
   const bottom = node('div', 'story-bottom');
   const readLink = linkTo(story.url, 'Read original', 'read-original');
@@ -363,8 +367,33 @@ function createStoryCard(story, index) {
   save.addEventListener('click', () => updateStory(story, 'saved', !story.saved));
   actions.append(read, save);
   bottom.append(readLink, actions);
-  card.append(bottom);
+  content.append(bottom);
+  if (hosted) {
+    const art = node('img', 'category-art');
+    art.alt = '';
+    art.decoding = 'async';
+    if (!featured) art.loading = 'lazy';
+    art.src = `/static/category-${categoryKey}.svg`;
+    card.append(art, content);
+  }
   return card;
+}
+
+function websiteDigest(stories) {
+  const board = node('div', 'edition-board');
+  board.append(createStoryCard(stories[0], 0, true));
+  if (stories.length > 1) {
+    const rail = node('section', 'edition-rail');
+    rail.append(node('h2', 'edition-subtitle', 'In this edition'));
+    rail.append(...stories.slice(1, 4).map((story, index) => createStoryCard(story, index + 1)));
+    board.append(rail);
+  }
+  if (stories.length <= 4) return [board];
+  const more = node('section', 'edition-more');
+  const grid = node('div', 'stories-grid');
+  grid.append(...stories.slice(4).map((story, index) => createStoryCard(story, index + 4)));
+  more.append(node('h2', 'edition-subtitle', 'More to explore'), grid);
+  return [board, more];
 }
 
 function renderEmpty(hasReadStories) {
@@ -474,8 +503,11 @@ function render() {
   renderCounts();
   renderRefresh();
   const matches = filteredStories();
-  const stories = $('#unread-only').checked ? matches.filter(story => !story.read) : matches;
+  const unreadOnly = $('#unread-only').checked;
+  const stories = unreadOnly ? matches.filter(story => !story.read) : matches;
+  const frontPage = hosted && view === 'today' && category === 'all' && !query && !unreadOnly && stories.length > 0;
   const grid = $('#stories');
+  grid.classList.toggle('edition-front', frontPage);
   grid.setAttribute('aria-busy', String(!loaded));
   if (!loaded && !model.stories.length) {
     grid.replaceChildren(...Array.from({ length: 6 }, () => {
@@ -484,7 +516,12 @@ function render() {
       skeleton.append(...Array.from({ length: 6 }, () => node('span')));
       return skeleton;
     }));
-  } else grid.replaceChildren(...(stories.length ? stories.map(createStoryCard) : [renderEmpty(matches.length > 0)]));
+  } else if (frontPage) {
+    grid.replaceChildren(...websiteDigest(stories));
+  } else {
+    const cards = stories.map((story, index) => createStoryCard(story, index, !hosted && view === 'today' && index === 0));
+    grid.replaceChildren(...(cards.length ? cards : [renderEmpty(matches.length > 0)]));
+  }
   $('#result-count').textContent = !loaded ? 'Gathering stories…' : stories.length ? `${stories.length} ${stories.length === 1 ? 'story' : 'stories'}${view === 'today' ? ' · picked for a little variety' : view === 'all' ? ' · collected across refreshes' : ''}` : '0 stories';
   if ($('#sources-dialog').open) renderSources();
 }
@@ -720,7 +757,7 @@ function openSources() {
 }
 
 for (const [key, value] of Object.entries(CATEGORIES)) {
-  const button = node('button', 'category-filter', value.label);
+  const button = node('button', 'category-filter', hosted && key === 'all' ? 'All topics' : value.label);
   button.dataset.category = key;
   button.type = 'button';
   button.setAttribute('aria-pressed', String(key === category));
@@ -755,6 +792,14 @@ $$('dialog').forEach(dialog => {
 });
 
 if (hosted) {
+  $('.sidebar').before($('.topbar'));
+  $('.topbar-actions').append($('.sidebar-bottom'));
+  $('.brand').replaceChildren(icon('sunrise'), document.createTextNode('Morning Signal'));
+  $('[data-view="saved"] > span:nth-child(2)').textContent = 'Saved';
+  $('.main-nav').after($('.search-field'));
+  $('#search').placeholder = 'Search stories';
+  $('.page-heading').append($('#result-count'));
+  $('.section-heading').classList.add('sr-only');
   $('#backup-settings').hidden = false;
   $('#export-backup').addEventListener('click', downloadBackup);
   $('#import-backup').addEventListener('click', () => $('#backup-file').click());
@@ -768,9 +813,7 @@ if (hosted) {
   $('#muted-help').textContent = 'Hide stories whose headlines contain these phrases.';
   $('#retention-help').nextElementSibling.textContent = 'Use the bookmark icon to keep a story’s headline and link in Saved. Bookmarked stories do not expire.';
   $('#source-settings').previousElementSibling.textContent = 'Switch sources on or off to shape your edition.';
-  $('.sidebar-note > span:last-child').replaceChildren('Collected from free public feeds.', node('br'), 'Bookmarks are saved in this browser.');
   $('.page-footer p span').textContent = 'Headlines belong to their publishers. Follow a story to read the original.';
-  $('.local-badge').replaceChildren(node('span', 'health-dot'), document.createTextNode(' WEB EDITION '), node('span', '', 'NO SUBSCRIPTIONS'));
 }
 
 if (!hosted) $('#shutdown-button').addEventListener('click', async () => {

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 230">
+  <defs>
+    <pattern id="track-grid" width="23" height="23" patternUnits="userSpaceOnUse">
+      <path d="M23 0H0v23" fill="none" stroke="#f7c2a2" opacity=".26"/>
+    </pattern>
+    <pattern id="checks" width="12" height="12" patternUnits="userSpaceOnUse">
+      <rect width="12" height="12" fill="#f1cdad"/><path d="M0 0h6v6H0Zm6 6h6v6H6Z" fill="#503342"/>
+    </pattern>
+  </defs>
+  <rect width="480" height="230" fill="#973d49"/>
+  <rect width="480" height="230" fill="url(#track-grid)"/>
+  <path d="M-30 220h123c43 0 65-23 65-56v-15c0-26 18-43 44-43h61c37 0 61-18 61-49V-20M85 250c67-5 93-31 93-85v-13c0-16 12-25 27-25h61c51 0 79-26 79-70V-20" fill="none" stroke="#e29b83" stroke-opacity=".55"/>
+  <path d="M-25 195H93c25 0 43-10 43-38v-16c0-35 25-58 60-58h70c25 0 38-12 38-32V-20" fill="none" stroke="#4d3141" stroke-width="45"/>
+  <path d="M-25 195H93c25 0 43-10 43-38v-16c0-35 25-58 60-58h70c25 0 38-12 38-32V-20" fill="none" stroke="#f4c9a7" stroke-width="2" stroke-dasharray="9 7"/>
+  <path d="M194 62h16v42h-16z" fill="url(#checks)"/>
+  <g transform="translate(247 83)">
+    <path d="M-19-11h8v22h-8Zm26-10h8v42H7Z" fill="#2a2937"/>
+    <path d="M-18-5h13l12-5h6l11 7h9v6h-9l-11 7H7L-5 5h-13Z" fill="#ffd3a3"/>
+    <path d="M-7-3h13v6H-7Z" fill="#b65355"/>
+  </g>
+  <path d="M371 135h52m-52 8h68m-68 8h42m-343-65h35m-49-8h57" stroke="#f4bb9a" stroke-width="2" stroke-linecap="round" opacity=".75"/>
+</svg>

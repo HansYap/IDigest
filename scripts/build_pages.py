@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if __package__ in (None, ""):
     sys.path.insert(0, str(ROOT))
 
-from news_engine import NewsEngine, REFRESH_SECONDS
+from news_engine import CATEGORIES, NewsEngine, REFRESH_SECONDS
 
 
 ASSETS = {
@@ -21,6 +21,8 @@ ASSETS = {
     "styles.css": "static/styles.css",
     "favicon.svg": "favicon.svg",
     "hosted.js": "hosted.js",
+    "website.css": "static/website.css",
+    **{f"illustrations/{category}.svg": f"static/category-{category}.svg" for category in CATEGORIES},
 }
 OUTPUT_FILES = {"index.html", "edition.json", "_headers", *ASSETS.values()}
 APP_SCRIPT = '<script defer src="/static/app.js"></script>'
@@ -105,7 +107,13 @@ def build_pages(output: Path) -> int:
     html = (static / "index.html").read_text(encoding="utf-8")
     if html.count(APP_SCRIPT) != 1:
         raise RuntimeError("Could not find the app script in the HTML template.")
-    html = html.replace(APP_SCRIPT, '<script defer src="/hosted.js"></script>\n  ' + APP_SCRIPT)
+    html = html.replace(
+        APP_SCRIPT,
+        '<link rel="stylesheet" href="/static/website.css">\n  '
+        '<script defer src="/hosted.js"></script>\n  ' + APP_SCRIPT,
+    )
+    html = html.replace("<body>", '<body class="web-edition">', 1)
+    html = html.replace('content="#f5f2eb"', 'content="#f8f6f0"', 1)
     html = html.replace(
         "Your free, private morning digest. Interesting stories from around the internet, gathered on your computer.",
         "Your free morning digest. Find interesting stories and save them in this browser.",

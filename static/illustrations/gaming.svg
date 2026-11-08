@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 230">
+  <defs><pattern id="game-grid" width="22" height="22" patternUnits="userSpaceOnUse"><path d="M22 0H0v22" fill="none" stroke="#beb2e9" stroke-opacity=".28"/></pattern></defs>
+  <rect width="480" height="230" fill="#33295a"/><rect width="480" height="230" fill="url(#game-grid)"/>
+  <path d="M0 179h480v51H0z" fill="#251e43"/>
+  <path d="M10 165h70v-22h44v22h48v-22h44v-25h43v25h45v24h65v-22h48v22h63v63H10Z" fill="#625191" opacity=".7"/>
+  <path d="M0 198h64v-17h49v17h52v-9h54v17h42v-17h49v-15h57v15h48v-14h65v55H0Z" fill="#291f4d"/>
+  <g transform="translate(152 49) rotate(-9 86 66)">
+    <path d="M3 14h165v111h-12v13H14v-10H3Z" fill="#161636"/>
+    <path d="M0 0h166v106h-12v14H0Z" fill="#e1b892"/>
+    <path d="M13 13h140v64H13Z" fill="#28214a"/><path d="M21 21h124v48H21Z" fill="#8577bb"/>
+    <path d="M21 61h27v-9h14V40h15v12h15v7h14v-8h15v8h24v10H21Z" fill="#514478"/>
+    <path d="M90 25h15v15H90z" fill="#f6d8a5"/>
+    <path d="M27 87h8v7h8v8h-8v7h-8v-7h-8v-8h8z" fill="#3e3155"/>
+    <circle cx="126" cy="98" r="7" fill="#984c64"/><circle cx="144" cy="92" r="7" fill="#984c64"/>
+    <path d="M64 105h12m5 0h12" stroke="#73567c" stroke-width="3"/>
+  </g>
+  <g fill="#f2c992"><path d="M83 59h9v9h-9zm302 35h7v7h-7zm-40-51h9v9h-9zm-223 67h6v6h-6z"/><path d="M372 52h3v17h-3zm-7 7h17v3h-17z"/></g>
+</svg>

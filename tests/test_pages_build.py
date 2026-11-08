@@ -4,11 +4,28 @@ from tempfile import TemporaryDirectory
 import unittest
 from unittest.mock import patch
 
-from news_engine import NewsEngine, utcnow
+from news_engine import CATEGORIES, NewsEngine, utcnow
 from scripts import build_pages
 
 
 class PagesBuildTests(unittest.TestCase):
+    def test_build_publishes_website_styles_and_each_category_illustration(self):
+        with TemporaryDirectory() as temp_dir, patch.object(build_pages, "collect_edition", return_value={"stories": []}):
+            output = Path(temp_dir)
+            build_pages.build_pages(output)
+
+            html = (output / "index.html").read_text(encoding="utf-8")
+            self.assertIn('href="/static/website.css"', html)
+            self.assertIn('<body class="web-edition">', html)
+            self.assertTrue((output / "static" / "website.css").is_file())
+            for category in CATEGORIES:
+                with self.subTest(category=category):
+                    self.assertTrue((output / "static" / f"category-{category}.svg").is_file())
+            self.assertEqual(
+                {path.relative_to(output).as_posix() for path in output.rglob("*") if path.is_file()},
+                build_pages.OUTPUT_FILES,
+            )
+
     def test_public_edition_contains_headlines_without_publisher_text_or_internal_state(self):
         with TemporaryDirectory() as temp_dir:
             engine = NewsEngine(Path(temp_dir), build_pages.ROOT / "sources.json")

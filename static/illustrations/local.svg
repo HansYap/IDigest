@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 230">
+  <defs>
+    <linearGradient id="sky" x2="0" y2="1">
+      <stop stop-color="#255962"/><stop offset="1" stop-color="#4c8277"/>
+    </linearGradient>
+    <pattern id="windows" width="8" height="10" patternUnits="userSpaceOnUse">
+      <path d="M0 3h8" stroke="#6e9785" stroke-width="1.3"/>
+    </pattern>
+  </defs>
+  <rect width="480" height="230" fill="url(#sky)"/>
+  <circle cx="241" cy="95" r="69" fill="#b9bc8e"/>
+  <path d="M0 181c67-47 108-18 163-40 53-22 102-15 148 4 56 24 99-27 169-10v95H0Z" fill="#396c64"/>
+  <path d="M0 213c66-30 117-33 170-22 53 11 97-25 156-17 52 7 101 14 154-9v65H0Z" fill="#224d4d"/>
+  <g fill="#efd7aa">
+    <path d="M184 192V91h6V78h5V65h6V51h2V31h3v20h2v14h6v13h5v13h6v101Zm71 0V91h6V78h5V65h6V51h2V31h3v20h2v14h6v13h5v13h6v101Z"/>
+    <path d="M217 123h45v8h-45Z"/>
+  </g>
+  <path d="M189 96h31v94h-31Zm71 0h31v94h-31Z" fill="url(#windows)"/>
+  <path d="M201 95v96m7-96v96m64-96v96m7-96v96" stroke="#6e9785"/>
+  <path d="M0 221c58-19 110-13 143-24l36-11c39-11 76-4 118 10 38 12 71 8 113 2l70-8v40H0Z" fill="#1c4043"/>
+  <path d="M83 229c1-38 13-68 38-90m-31 59c-10-14-22-24-38-27m43 14c18-5 29-14 39-29m252 73c-2-40-13-69-40-91m32 60c11-14 23-24 40-28m-44 15c-17-6-28-15-38-29" fill="none" stroke="#77a281" stroke-width="3" stroke-linecap="round"/>
+</svg>

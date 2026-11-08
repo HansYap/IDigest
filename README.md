@@ -73,6 +73,8 @@ The local reader has no installation or build command.
 
 The hosted edition collects feeds during each Cloudflare Pages build and publishes headlines, dates, sources, and links. Bookmarks, reading history, and preferences are stored in the browser you use to open the hosted site. The local reader uses its own database. **Reload edition** loads the most recently published edition.
 
+The website digest opens with an illustrated lead story, a short list from the same edition, and more stories below. Each category uses the same original illustration across the website, including filtered and saved stories. The category name is always shown.
+
 To move website bookmarks and preferences to another browser, open **Make it yours** and click **Export backup**. In the other browser, open the same panel, click **Import backup**, and choose the downloaded JSON file. Import adds the bookmarks to your existing saved list and restores the preferences from the file. Keep the backup somewhere private.
 
 In **Workers & Pages → Create application → Continue to Pages**, choose **Import an existing Git repository**, select this repository, and use the following settings.
