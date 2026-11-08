@@ -197,13 +197,12 @@ function availableStories(includeHidden = false) {
   });
 }
 
-function rank(stories) {
+function rank(stories, { now = Date.now(), preferUnread = true } = {}) {
   if (hosted) {
-    const now = Date.now();
     return stories.map(story => {
       const published = dateOf(story.published_at) || dateOf(story.discovered_at);
       const ageHours = published ? Math.max(0, (now - published.getTime()) / 3600000) : 168;
-      const score = Math.max(0, 100 - ageHours * 1.8) + Math.min(72, matchesWatch(story).length * 48) + (story.read ? 0 : 8);
+      const score = Math.max(0, 100 - ageHours * 1.8) + Math.min(72, matchesWatch(story).length * 48) + (preferUnread && !story.read ? 8 : 0);
       return { story, score, published };
     }).sort((a, b) => b.score - a.score || (b.published || 0) - (a.published || 0)).map(item => item.story);
   }
@@ -216,7 +215,9 @@ function balancedDigest(stories, unfiltered = false) {
   const used = new Set();
   const perCategory = {};
   const perSource = {};
-  let sorted = rank(stories);
+  // Keep the website digest tied to its edition and independent of reading progress.
+  const now = dateOf(model.refresh.last_success_at)?.getTime() ?? Date.now();
+  let sorted = rank(stories, { now, preferUnread: false });
   function select(story) {
     const cat = story.category || 'tech';
     const source = story.source_id || story.source || 'unknown';
@@ -228,7 +229,7 @@ function balancedDigest(stories, unfiltered = false) {
   if (hosted) {
     sorted = sorted.filter(story => !story.title?.startsWith('Pre-release-shadPS4'));
     if (unfiltered) {
-      const cutoff = Date.now() - 48 * 3600000;
+      const cutoff = now - 48 * 3600000;
       const recent = sorted.filter(story => (dateOf(story.published_at) || 0) >= cutoff);
       if (recent.length) sorted = recent;
       for (const key of Object.keys(CATEGORIES)) {
@@ -317,6 +318,7 @@ function createStoryCard(story, index, featured = false) {
   card.style.setProperty('--category-color', info.color);
   const top = node('div', 'story-topline');
   top.append(node('span', 'category-tag', info.label), node('span', 'story-number', String(index + 1).padStart(2, '0')));
+  if (hosted && story.read) top.append(node('span', 'read-status', 'Read'));
   const title = node('h3');
   const titleLink = linkTo(story.url, story.title || 'Untitled story');
   titleLink.addEventListener('click', () => markRead(story, true, true));
@@ -354,8 +356,9 @@ function createStoryCard(story, index, featured = false) {
   const read = node('button', 'card-action read-action');
   read.type = 'button';
   read.title = story.read ? 'Mark unread' : 'Mark as read';
-  read.setAttribute('aria-label', `${read.title}: ${story.title}`);
+  read.setAttribute('aria-label', `${hosted ? 'Mark as read' : read.title}: ${story.title}`);
   read.setAttribute('aria-pressed', String(Boolean(story.read)));
+  if (hosted) read.dataset.storyId = story.id;
   read.append(icon('check'));
   read.addEventListener('click', () => markRead(story, !story.read));
   const save = node('button', 'card-action save-action');
@@ -571,7 +574,14 @@ async function updateStory(story, field, value, quietly = false) {
     const index = model.stories.findIndex(item => item.id === story.id);
     if (index !== -1) model.stories[index] = { ...model.stories[index], [field]: value, ...(result.story || {}) };
     cacheState();
+    const restoreReadFocus = hosted && field === 'read' && !quietly &&
+      document.activeElement?.matches('.read-action') && document.activeElement.dataset.storyId === story.id;
     render();
+    if (restoreReadFocus) {
+      const readButton = $(`.read-action[data-story-id="${CSS.escape(story.id)}"]`);
+      if (readButton) readButton.focus({ preventScroll: true });
+      else $('#unread-only').focus();
+    }
     if (!quietly) toast(field === 'saved' ? value ? 'Kept for a quieter moment.' : 'Removed from your saved stories.' : value ? 'Marked as read.' : 'Marked as unread.');
   } catch (error) {
     if (!quietly) toast(hosted ? error.message : 'That change could not be saved. Please try again.');

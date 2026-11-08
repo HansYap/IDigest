@@ -169,6 +169,7 @@
 .featured .category-art { aspect-ratio: 1.49; margin-bottom: 0; }
 .web-edition .story-topline { margin-bottom: 6px; }
 .web-edition .category-tag { color: var(--accent); font-size: .72rem; letter-spacing: .09em; }
+.web-edition .read-status { color: var(--muted); font-size: .75rem; font-weight: 650; }
 .web-edition .category-tag::before, .web-edition .story-number { display: none; }
 .web-edition .story-card h3 { font-size: clamp(1.28rem, 2.15vw, 1.7rem); font-weight: 700; line-height: 1.15; margin: 0 0 8px; }
 .web-edition .story-card.featured h3 { font-size: clamp(2.02rem, 2.95vw, 2.7rem); line-height: 1.08; text-wrap: balance; }
