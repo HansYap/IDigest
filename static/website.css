@@ -7,6 +7,10 @@
   --line: #d1cec3;
   --accent: #293eab;
   --accent-soft: #e9eaf7;
+  /* Pink is a small highlight; blue remains the everyday link/control colour. */
+  --highlight: #d81b68;
+  --highlight-ink: #b31655;
+  --highlight-soft: #fce8f0;
   border-top: 4px solid var(--accent);
   font-size: 16px;
 }
@@ -102,7 +106,7 @@
   background: transparent;
 }
 
-.web-edition .nav-item.active { border-bottom-color: var(--accent); }
+.web-edition .nav-item.active { border-bottom-color: var(--highlight); }
 .web-edition .nav-item > [data-icon], .web-edition .nav-count { display: none; }
 
 .web-edition .search-field {
@@ -179,11 +183,13 @@
 .web-edition .story-meta :is(.story-source, time) { color: var(--muted); }
 .web-edition .story-bottom { margin-top: auto; padding-top: 5px; border: 0; gap: 3px; flex-wrap: wrap; }
 .web-edition .read-original { color: var(--accent); text-decoration: underline; text-underline-offset: .2em; font-size: .8rem; }
-.web-edition .featured .read-original { background: var(--accent); color: #fff; min-height: 40px; padding: 7px 10px; text-decoration: none; }
-.web-edition .featured .read-original:hover { background: #1e2e84; }
+.web-edition .featured .read-original { background: var(--highlight); color: #fff; min-height: 40px; padding: 7px 10px; text-decoration: none; }
+.web-edition .featured .read-original:hover { background: var(--highlight-ink); }
 .web-edition .card-action { width: 36px; height: 36px; border: 1px solid var(--line); border-radius: 0; color: var(--muted); }
 .web-edition .card-action:hover, .web-edition .card-action[aria-pressed="true"] { color: var(--accent); background: var(--accent-soft); }
+.web-edition .save-action[aria-pressed="true"] { color: var(--highlight-ink); background: var(--highlight-soft); border-color: var(--highlight); }
 .web-edition .card-action[aria-pressed="true"].save-action svg { fill: currentColor; }
+.web-edition .briefing-end > span { color: var(--highlight); }
 
 .web-edition .edition-rail .story-card {
   display: grid;

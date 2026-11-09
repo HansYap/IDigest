@@ -26,6 +26,10 @@ Preferences migrate once by version: replace only values equal to legacy starter
 
 The source flag `headlines_only` prevents excerpt retention where only headline links are suitable; `exclude_feed_categories` excludes known subscription tags before storage. These controls do not guarantee a publisher will never restrict an unmarked article. Keep the reading shelf collapsed in Saved and the end-of-edition message free of prompts to browse more.
 
+### 9 November 2026: restrained website colour accents
+
+The website keeps its blue masthead, everyday links and warm-white background. Pink is limited to the active navigation underline, lead-story button, saved-bookmark state and end-of-edition symbol. `static/website.css` owns the three highlight tokens; the darker shade supports readable hover and saved states. Keep this accent sparse. The Windows palette is separate and unchanged.
+
 ## Verification
 
 Use the applicable rows. Record the commands or user actions actually performed and their results.
