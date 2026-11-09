@@ -30,6 +30,10 @@ The source flag `headlines_only` prevents excerpt retention where only headline 
 
 The website keeps its blue masthead, everyday links and warm-white background. Pink is limited to the active navigation underline, lead-story button, saved-bookmark state and end-of-edition symbol. `static/website.css` owns the three highlight tokens; the darker shade supports readable hover and saved states. Keep this accent sparse. The Windows palette is separate and unchanged.
 
+### 9 November 2026: readable website controls and responsive spacing
+
+Website controls use a shared 15px-equivalent type size, supporting text uses 14px, and form inputs use 16px. Keep these sizes consistent across mobile and desktop; controls have a minimum 44px height. Navigation, topic chips, source labels, dialogs and footer actions wrap within the available width. Give the desktop story rail enough room for larger text and separate story metadata from its actions. The footer reuses the masthead's sunrise artwork and calls its action **Source status**, matching the header. These rules live in `static/website.css`; the small branding update in `static/app.js` runs only for the hosted edition. Windows styling and storage behavior are unchanged.
+
 ## Verification
 
 Use the applicable rows. Record the commands or user actions actually performed and their results.

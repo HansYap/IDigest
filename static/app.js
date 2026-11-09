@@ -786,6 +786,9 @@ if (hosted) {
   $('.sidebar').before($('.topbar'));
   $('.topbar-actions').append($('.sidebar-bottom'));
   $('.brand').replaceChildren(icon('sunrise'), document.createTextNode('Morning Signal'));
+  $('.footer-mark').replaceChildren(icon('sunrise'));
+  $('.footer-mark').setAttribute('aria-hidden', 'true');
+  $('#footer-sources').replaceChildren(document.createTextNode('Source status '), icon('arrow'));
   $('[data-view="saved"] > span:nth-child(2)').textContent = 'Saved';
   $('.main-nav').after($('.search-field'));
   $('#search').placeholder = 'Search stories';
