@@ -68,7 +68,8 @@ class ServerTests(unittest.TestCase):
         self.assertIn("frame-ancestors 'none'", headers["Content-Security-Policy"])
 
     def test_reader_and_its_assets_are_served(self):
-        for path, mime in (("/", "text/html"), ("/static/styles.css", "text/css"), ("/static/app.js", "text/javascript")):
+        for path, mime in (("/", "text/html"), ("/static/styles.css", "text/css"),
+                           ("/static/briefing.js", "text/javascript"), ("/static/app.js", "text/javascript")):
             status, headers, body = self.request(path)
             self.assertEqual(status, 200, path)
             self.assertIn(mime, headers["Content-Type"])

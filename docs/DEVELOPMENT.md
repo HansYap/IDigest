@@ -16,6 +16,16 @@ Use this guide when editing, verifying, preparing a handoff, or drafting a commi
 
 Add a short dated explanation here when an agreed design decision changes. Include the reason and affected behavior so a later session can understand the choice.
 
+### 9 November 2026: finite personal briefing (both editions)
+
+`static/briefing.json` owns topic slots, defaults and portable headline rules. Python and `static/briefing.js` use the same policy; the snapshot includes it so hosted and offline reading need no extra request. Nine is the default ceiling. Candidates must be within 48 hours of the edition anchor; strict topic/source caps prevent repeated feeds from taking over. Caps scale for explicitly larger limits. Empty slots can use other qualified candidates under those caps, never stale filler. Ranking and duplicate representatives are independent of read status. Filters narrow the selected lineup.
+
+Whole-phrase watch matching replaces substring matching, and its bonus applies once. Regional title matches modestly favour client markets; these and promotional/local title rules are limited heuristics, not semantic importance scoring. Malaysia coverage currently comes through Asia; cars has an engineering feed and an enthusiast reading destination. Source access/reuse findings live in [SOURCES.md](../SOURCES.md).
+
+Preferences migrate once by version: replace only values equal to legacy starter defaults, retain custom values and bookmarks, enable newly introduced feeds while honoring known exclusions and explicit all-off choices. Windows records known source IDs in metadata; the hosted profile and new backups record the equivalent fields. Old backups remain valid. A pre-policy cached website edition has a bounded, stable fallback until a fresh edition loads.
+
+The source flag `headlines_only` prevents excerpt retention where only headline links are suitable; `exclude_feed_categories` excludes known subscription tags before storage. These controls do not guarantee a publisher will never restrict an unmarked article. Keep the reading shelf collapsed in Saved and the end-of-edition message free of prompts to browse more.
+
 ## Verification
 
 Use the applicable rows. Record the commands or user actions actually performed and their results.
@@ -25,6 +35,7 @@ Use the applicable rows. Record the commands or user actions actually performed 
 | Documentation only | Check local links, named files and commands against the repository, and run `git diff --check`. Inspect new untracked documents as well as tracked diffs. |
 | Python, storage, server, or build behavior | Run `python -m unittest discover -s tests -v`. Exercise the changed behavior through its normal entry point using temporary data. |
 | Browser scripts | Run `node --check static/app.js` and `node --check static/hosted.js` when Node is available, then test the changed interaction in a browser. Record an unavailable syntax check as skipped. Node is a development check tool. |
+| Briefing policy or hosted preferences | Also run `node --check static/briefing.js` and `node --test tests/test_briefing.js`; cover quiet editions, legacy caches, custom limits, migration and backup preservation. |
 | Shared UI | Exercise both the Windows server and a generated website preview. Check a narrow screen if layout changes. |
 | Bookmarks, settings, or backup handling | Use isolated browser profiles. Check saving and reload, migration, repeated import, and invalid input against existing saved data. |
 | Published website behavior | Check the relevant live assets or behavior after deployment. A local build or GitHub commit alone leaves publication unverified. |

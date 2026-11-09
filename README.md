@@ -1,6 +1,6 @@
 # Morning Signal
 
-A personal morning newspaper for gaming, technology, internet culture, science, animals, motorsport, and Malaysia.
+A personal morning briefing for world and Asian affairs, companies and supply chains, engineering, science, nature, cars, and gaming.
 
 **Free to run.** The Windows reader uses Python 3.10 or newer and an internet connection. It runs with Python's standard library and plain browser JavaScript. The website edition runs on Cloudflare Pages, as described below.
 
@@ -21,6 +21,7 @@ This keeps a terminal attached; press Ctrl+C there to stop it. The usual address
 ## Your daily routine
 
 - **Today** is a short selection balanced across your interests.
+- The default is **at most nine stories**, with a visible end to the edition. Quiet days can be shorter. Reading keeps the lineup in place; **Unread only** shortens that same selection.
 - **All stories** shows the collected library across refreshes, including earlier days, with search and category filters. It has no hourly cutoff. Up to 600 recent unsaved stories are displayed, along with your bookmarks. Unsaved items expire after your chosen retention period (30 days by default), or sooner when the cache reaches its size limit.
 - **Watchlist** highlights stories matching your watched phrases.
 - **Saved** holds stories you bookmarked. Use the bookmark icon on any story to keep its headline, excerpt, and original link. Bookmarks do not expire. Removing a bookmark makes that story subject to the normal expiry rules again.
@@ -36,13 +37,21 @@ Cached stories appear without waiting for news collection. The reader refreshes 
 
 ## What the digest means
 
+The briefing gives space to world and regional events, business and logistics, engineering and science, plus cars, nature and gaming. It selects stories published within 48 hours of the edition's refresh time, limits repeated topics and sources, and skips recognizable deals, promotions, liveblogs and routine patch-note headlines. Larger limits in Settings scale those caps. These are transparent headline rules, not a judgment that every selected story is important or verified. All stories remains available for deliberate browsing.
+
+Watched phrases match whole phrases rather than pieces of unrelated words. One match gives a small boost; overlapping phrases do not stack. Client-region mentions get a modest boost in world/business coverage. Malaysia has no dedicated general-news feed in the current set; major events can arrive through the Asia feed. Cars has an automotive engineering feed, with a direct enthusiast-reading link in Saved. See [SOURCES.md](SOURCES.md) for the 13 sources, free-access checks and coverage limits.
+
+**Saved** also has a collapsed shelf of free resources for engineering, enthusiast cars, planted aquariums and vivariums. Choose one when you want to learn more; there is no reading streak, completion target or automatic next article.
+
 Stories come from public publisher RSS and project Atom feeds. Headlines, publisher excerpts, original dates, source names, and links stay visible. The reader groups similar coverage and ranks it using freshness, watched phrases, and category diversity. It does not claim to verify reporting or turn a rumour into a confirmed fact. It does not generate AI summaries. No story is invented to fill an empty category.
 
-The first feed collection usually takes a few to a few dozen seconds, depending on connection and source availability. Slow or broken feeds time out separately. If a refresh fails, previously collected stories stay available. Some publishers supply only short excerpts, and opening an original article may encounter the publisher's paywall.
+The first feed collection usually takes a few to a few dozen seconds, depending on connection and source availability. Slow or broken feeds time out separately. If a refresh fails, previously collected stories stay available. No subscription, paid API, or AI service is required. The selected feeds and reading resources are publicly accessible; publishers can change access to individual linked pages. No paywall is bypassed. Known paid Loadstar categories are excluded, and only its headline links are retained.
 
 Feeds and editorial coverage can change. See SOURCES.md for verified sources, attribution, and source maintenance. You can disable a noisy source in Settings; sources.json holds the source definitions.
 
 ## Your data
+
+The new briefing replaces the exact old starter watchlist and 15-story default once. Custom watchlists, other chosen limits, muted phrases, retention, bookmarks and reading history are preserved. Newly introduced feeds are enabled while known source exclusions stay off; an explicitly empty source selection stays empty. Bookmarks from retired sources remain in Saved. Existing backups still import, and new backups retain the preference-migration version.
 
 The **data** folder contains the local SQLite database, preferences, saved/read state, and rotating diagnostic logs. Your browser also caches the latest edition for faster opening and reading if the server disconnects. No account or telemetry is included. Feed requests go to the publishers; opening an article visits its original website. The app listens only on your own computer's loopback address.
 
@@ -73,9 +82,11 @@ The local reader has no installation or build command.
 
 The hosted edition collects feeds during each Cloudflare Pages build and publishes headlines, dates, sources, and links. Bookmarks, reading history, and preferences are stored in the browser you use to open the hosted site. The local reader uses its own database. **Reload edition** loads the most recently published edition.
 
+The website stays static: no paid backend, AI API, subscription or paid feed is needed. One scheduled build a day fits within [Cloudflare Pages' Free allowance of 500 builds per month](https://developers.cloudflare.com/pages/platform/limits/) (checked 9 November 2026). Standard GitHub Actions runners are [free for public repositories](https://docs.github.com/en/billing/concepts/product-billing/github-actions). The project does not enable paid plans or change account billing; unrelated account usage and future provider terms are outside this setup.
+
 The website digest opens with an illustrated lead story, a short list from the same edition, and more stories below. Each category uses the same original illustration across the website, including filtered and saved stories. The category name is always shown.
 
-On the website, reading a story in **Today’s digest** adds a **Read** label and keeps the story in its place. **Unread only** hides read stories from the selected digest, so the list gets shorter as you read.
+In both editions, reading a story in **Today’s digest** adds a **Read** label and keeps the story in its place. Category and search filters narrow the same selection. **Unread only** hides read stories from that selection, so the list gets shorter as you read. A quiet edition offers a stopping message instead of prompting repeated reloads.
 
 To move website bookmarks and preferences to another browser, open **Make it yours** and click **Export backup**. In the other browser, open the same panel, click **Import backup**, and choose the downloaded JSON file. Import adds the bookmarks to your existing saved list and restores the preferences from the file. Keep the backup somewhere private.
 

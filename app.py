@@ -89,6 +89,7 @@ class Handler(BaseHTTPRequestHandler):
             "/app.js": ("app.js", "text/javascript; charset=utf-8"),
             "/static/styles.css": ("styles.css", "text/css; charset=utf-8"),
             "/static/app.js": ("app.js", "text/javascript; charset=utf-8"),
+            "/static/briefing.js": ("briefing.js", "text/javascript; charset=utf-8"),
             "/favicon.svg": ("favicon.svg", "image/svg+xml"),
         }
         entry = static_paths.get(path)

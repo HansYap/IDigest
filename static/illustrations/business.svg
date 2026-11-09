@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 230">
+  <defs><pattern id="cargo-lines" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M5 0v10" fill="none" stroke="#253f4e" stroke-opacity=".28" stroke-width="1.5"/></pattern></defs>
+  <rect width="480" height="230" fill="#345f6b"/>
+  <circle cx="348" cy="63" r="40" fill="#c9bd91"/>
+  <path d="M0 136V96h27v40h12V79h37v57h13V99h32v37h18V58h31v78h18V84h27v52h18V104h34v32h15V92h29v44h19V75h27v61h17V102h29v34h77v94H0Z" fill="#274b59"/>
+  <g fill="none" stroke="#b5c5b0" stroke-width="4" stroke-linejoin="round">
+    <path d="M47 157V40h151l-28 18H47m0-18 33 18m25 0V40m47 18V40M85 58v99m-38-1 38-62m-38 0 38 62M176 56v40"/>
+    <path d="M168 97h16v13h-16Z" stroke-width="2"/>
+  </g>
+  <path d="M0 172h480v58H0Z" fill="#1d3d4c"/>
+  <g stroke="#233e4c" stroke-width="3">
+    <path d="M131 116h81v28h-81Z" fill="#d8ba8a"/>
+    <path d="M216 116h81v28h-81Z" fill="#b77c69"/>
+    <path d="M131 146h81v28h-81Z" fill="#8ead9c"/>
+    <path d="M216 146h81v28h-81Z" fill="#d8ba8a"/>
+    <path d="M301 146h51v28h-51Z" fill="#b77c69"/>
+  </g>
+  <path d="M131 116h166v58H131Zm170 30h51v28h-51Z" fill="url(#cargo-lines)"/>
+  <path d="M359 170v-48h30v13h12v35Z" fill="#d9d3b4"/>
+  <path d="M363 129h18v8h-18Zm21 13h11v8h-11Z" fill="#345f6b"/>
+  <path d="M373 121v-16m-6 0h22" stroke="#d9d3b4" stroke-width="3"/>
+  <path d="M110 172h309l-22 29H141Z" fill="#bb7664"/>
+  <path d="M131 193h271l-5 8H141Z" fill="#e0bd91"/>
+  <path d="M15 207h77m-55 11h121m173-8h103m-232 8h70m120 0h74" fill="none" stroke="#82a6a4" stroke-width="2" stroke-linecap="round" opacity=".7"/>
+  <path d="M237 41h39m-20-9 20 9-20 9" fill="none" stroke="#d0c8a3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

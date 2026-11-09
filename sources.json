@@ -1,29 +1,17 @@
 {
   "sources": [
+    {"id":"bbcworld","name":"BBC News - World","category":"world","url":"https://feeds.bbci.co.uk/news/world/rss.xml","website":"https://www.bbc.com/news/world"},
+    {"id":"bbcasia","name":"BBC News - Asia","category":"world","url":"https://feeds.bbci.co.uk/news/world/asia/rss.xml","website":"https://www.bbc.com/news/world/asia"},
+    {"id":"bbcbusiness","name":"BBC News - Business","category":"business","url":"https://feeds.bbci.co.uk/news/business/rss.xml","website":"https://www.bbc.com/news/business"},
+    {"id":"loadstar","name":"The Loadstar News","category":"business","url":"https://theloadstar.com/category/news/feed/","website":"https://theloadstar.com","headlines_only":true,"exclude_feed_categories":["premium"]},
     {"id":"ars","name":"Ars Technica","category":"tech","url":"https://feeds.arstechnica.com/arstechnica/index","website":"https://arstechnica.com"},
-    {"id":"verge","name":"The Verge","category":"tech","url":"https://www.theverge.com/rss/index.xml","website":"https://www.theverge.com"},
-    {"id":"hackernews","name":"Hacker News","category":"tech","url":"https://news.ycombinator.com/rss","website":"https://news.ycombinator.com"},
-    {"id":"hackaday","name":"Hackaday","category":"tech","url":"https://hackaday.com/blog/feed/","website":"https://hackaday.com"},
-    {"id":"bleepingcomputer","name":"BleepingComputer","category":"tech","url":"https://www.bleepingcomputer.com/feed/","website":"https://www.bleepingcomputer.com"},
-    {"id":"404media","name":"404 Media","category":"tech","url":"https://www.404media.co/rss/","website":"https://www.404media.co"},
-    {"id":"register","name":"The Register","category":"tech","url":"https://www.theregister.com/headlines.atom","website":"https://www.theregister.com"},
-    {"id":"eurogamer","name":"Eurogamer","category":"gaming","url":"https://www.eurogamer.net/feed","website":"https://www.eurogamer.net"},
-    {"id":"rps","name":"Rock Paper Shotgun","category":"gaming","url":"https://www.rockpapershotgun.com/feed","website":"https://www.rockpapershotgun.com"},
-    {"id":"gamingonlinux","name":"GamingOnLinux","category":"gaming","url":"https://www.gamingonlinux.com/article_rss.php","website":"https://www.gamingonlinux.com"},
-    {"id":"wololo","name":"Wololo","category":"gaming","url":"https://wololo.net/feed/","website":"https://wololo.net"},
-    {"id":"shadps4","name":"shadPS4 Releases","category":"gaming","url":"https://github.com/shadps4-emu/shadPS4/releases.atom","website":"https://github.com/shadps4-emu/shadPS4"},
-    {"id":"variety","name":"Variety","category":"culture","url":"https://variety.com/feed/","website":"https://variety.com"},
-    {"id":"polygon","name":"Polygon","category":"culture","url":"https://www.polygon.com/rss/index.xml","website":"https://www.polygon.com"},
-    {"id":"kym","name":"Know Your Meme","category":"culture","url":"https://knowyourmeme.com/newsfeed.rss","website":"https://knowyourmeme.com"},
-    {"id":"smithsonian","name":"Smithsonian Science & Nature","category":"science","url":"https://www.smithsonianmag.com/rss/science-nature/","website":"https://www.smithsonianmag.com/science-nature/"},
+    {"id":"ieeespectrum","name":"IEEE Spectrum","category":"tech","url":"https://spectrum.ieee.org/feeds/feed.rss","website":"https://spectrum.ieee.org"},
+    {"id":"physnews","name":"Phys.org Research Highlights","category":"science","url":"https://phys.org/rss-feed/breaking/","website":"https://phys.org"},
     {"id":"nasanews","name":"NASA","category":"science","url":"https://www.nasa.gov/feed/","website":"https://www.nasa.gov"},
-    {"id":"sciencealert","name":"ScienceAlert","category":"science","url":"https://www.sciencealert.com/feed","website":"https://www.sciencealert.com"},
+    {"id":"techcars","name":"TechXplore.com Automotive","category":"cars","url":"https://techxplore.com/rss-feed/automotive-news/","website":"https://techxplore.com/automotive-news/"},
     {"id":"mongabay","name":"Mongabay","category":"animals","url":"https://news.mongabay.com/feed/","website":"https://news.mongabay.com"},
     {"id":"physanimals","name":"Phys.org Plants & Animals","category":"animals","url":"https://phys.org/rss-feed/biology-news/plants-animals/","website":"https://phys.org/biology-news/plants-animals/"},
-    {"id":"racefans","name":"RaceFans","category":"motorsport","url":"https://www.racefans.net/feed/","website":"https://www.racefans.net"},
-    {"id":"motorsport","name":"Motorsport.com F1","category":"motorsport","url":"https://www.motorsport.com/rss/f1/news/","website":"https://www.motorsport.com/f1/"},
-    {"id":"soyacincau","name":"SoyaCincau","category":"local","url":"https://soyacincau.com/feed/","website":"https://soyacincau.com"},
-    {"id":"lowyat","name":"Lowyat.NET","category":"local","url":"https://www.lowyat.net/feed/","website":"https://www.lowyat.net"},
-    {"id":"paultan","name":"Paul Tan","category":"local","url":"https://paultan.org/feed/","website":"https://paultan.org"}
+    {"id":"eurogamer","name":"Eurogamer","category":"gaming","url":"https://www.eurogamer.net/feed","website":"https://www.eurogamer.net"},
+    {"id":"wololo","name":"Wololo","category":"gaming","url":"https://wololo.net/feed/","website":"https://wololo.net"}
   ]
 }

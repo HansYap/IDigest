@@ -25,6 +25,8 @@
       settings: profile.settings || {},
       bookmarks: Array.isArray(profile.bookmarks) ? profile.bookmarks : [],
       read: Array.isArray(profile.read) ? profile.read : [],
+      briefing_version: profile.briefing_version || 0,
+      known_source_ids: Array.isArray(profile.known_source_ids) ? profile.known_source_ids : undefined,
     };
   }
 
@@ -62,10 +64,11 @@
     const previous = readStorage(CACHE_KEY);
     const base = edition || previous;
     const sources = base.sources || [];
+    MorningBriefing.migrate(profile, base.briefing, sources);
     const settings = {
       watchlist: [],
       muted_keywords: [],
-      digest_size: 15,
+      digest_size: 9,
       retention_days: 30,
       enabled_sources: sources.map(source => source.id),
       ...base.settings,
@@ -75,12 +78,14 @@
     const bookmarked = new Set(profile.bookmarks.map(story => story.id));
     const read = new Set(profile.read);
     const stories = new Map();
+    const categories = new Map(sources.map(source => [source.id, source.category]));
     for (const row of [...profile.bookmarks, ...(previous.stories || []), ...(edition?.stories || [])]) {
       // Scores and visibility are recalculated from this browser's preferences.
       const { saved, read: wasRead, watch_matches, muted, score, enabled: wasEnabled, ...story } = row;
       const original = stories.get(story.id);
       stories.set(story.id, {
         ...story,
+        category: categories.get(story.source_id) || story.category,
         // Keep the original date even if a feed omits dates on later builds.
         published_at: original?.published_at || story.published_at,
         discovered_at: original?.discovered_at || story.discovered_at,
@@ -192,6 +197,8 @@
       version: BACKUP_VERSION,
       settings: validatedSettings(profile.settings),
       bookmarks: profile.bookmarks.map(backupBookmark),
+      briefing_version: profile.briefing_version,
+      known_source_ids: profile.known_source_ids,
     };
   }
 
@@ -201,12 +208,19 @@
     }
     const settings = validatedSettings(backup.settings);
     const imported = backup.bookmarks.map(backupBookmark);
+    if (backup.briefing_version !== undefined && (!Number.isInteger(backup.briefing_version) || backup.briefing_version < 0)) {
+      throw new Error('This backup contains invalid reading preferences.');
+    }
+    if (backup.known_source_ids !== undefined && (!Array.isArray(backup.known_source_ids) || backup.known_source_ids.some(id => typeof id !== 'string'))) {
+      throw new Error('This backup contains invalid source preferences.');
+    }
     const profile = readProfile();
     const bookmarks = new Map(profile.bookmarks.map(story => [story.id, story]));
     for (const story of imported) {
       if (!bookmarks.has(story.id)) bookmarks.set(story.id, story);
     }
-    const restored = { ...profile, settings, bookmarks: [...bookmarks.values()] };
+    const restored = { ...profile, settings, bookmarks: [...bookmarks.values()],
+      briefing_version: backup.briefing_version || 0, known_source_ids: backup.known_source_ids };
     const state = snapshot(latestEdition, restored);
     writeProfile(restored);
     return state;
@@ -216,7 +230,14 @@
     if (path === '/api/state' && body === undefined) {
       const edition = refreshedEdition || await getEdition();
       refreshedEdition = undefined;
-      return snapshot(edition, readProfile());
+      const profile = readProfile();
+      const before = JSON.stringify(profile);
+      const state = snapshot(edition, profile);
+      // Reading remains available even when browser storage is full or disabled.
+      if (before !== JSON.stringify(profile)) {
+        try { writeProfile(profile); } catch { /* Explicit saves still report storage errors. */ }
+      }
+      return state;
     }
     if (path === '/api/refresh' && body) {
       refreshedEdition = await getEdition();

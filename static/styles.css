@@ -18,3 +18,16 @@
 .unread-filter input { margin: 0; accent-color: var(--accent); }
 .backup-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .backup-actions + .settings-error { margin: 10px 0 0; }
+
+/* A visible stopping point; optional evergreen reading lives in Saved. */
+.briefing-end { margin: 32px 0 8px; padding: 30px 20px; text-align: center; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.briefing-end > span { font-size: 1.7rem; color: var(--accent); }
+.briefing-end h2 { font: 700 1.7rem/1.2 var(--serif); margin: 8px 0; }
+.briefing-end p, .reading-shelf p, .reading-shelf li span { color: var(--muted); line-height: 1.6; }
+.reading-shelf { margin-top: 30px; padding: 20px; border: 1px solid var(--line); border-radius: 4px; }
+.reading-shelf summary { cursor: pointer; font-weight: 650; }
+.reading-shelf li { margin: 18px 0; }
+.reading-shelf li span { display: block; font-size: .9rem; }
+.reading-shelf a { color: var(--accent); text-underline-offset: 3px; }
+.reading-shelf a:focus-visible, .reading-shelf summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.read-status { font-size: .7rem; font-weight: 700; letter-spacing: .05em; color: var(--muted); }

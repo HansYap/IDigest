@@ -20,12 +20,13 @@ from news_engine import CATEGORIES, NewsEngine, REFRESH_SECONDS
 WEBSITE_ICON = "favicon-sunrise.svg"
 ASSETS = {
     "app.js": "static/app.js",
+    "briefing.js": "static/briefing.js",
     "styles.css": "static/styles.css",
     "favicon.svg": "favicon.svg",
     "website-icon.svg": WEBSITE_ICON,
     "hosted.js": "hosted.js",
     "website.css": "static/website.css",
-    **{f"illustrations/{category}.svg": f"static/category-{category}.svg" for category in CATEGORIES},
+    **{f"illustrations/{category}.svg": f"static/category-{category}.svg" for category in (*CATEGORIES, "culture", "motorsport")},
 }
 OUTPUT_FILES = {"index.html", "edition.json", "_headers", *ASSETS.values()}
 APP_SCRIPT = '<script defer src="/static/app.js"></script>'
@@ -90,6 +91,7 @@ def public_edition(state: dict) -> dict:
         "settings": {key: state["settings"][key] for key in SETTINGS_FIELDS},
         "refresh": {key: refresh[key] for key in ("running", "started_at", "finished_at", "last_success_at", "completed", "total")},
         "updated_at": state["updated_at"],
+        "briefing": state["briefing"],
     }
 
 

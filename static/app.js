@@ -4,13 +4,16 @@ const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 const CATEGORIES = {
   all: { label: 'Everything', color: '#676d5a' },
-  gaming: { label: 'Gaming', color: '#8a583c' },
-  tech: { label: 'Tech', color: '#536b70' },
-  culture: { label: 'Culture', color: '#8e6273' },
+  world: { label: 'World & Asia', color: '#536b70' },
+  business: { label: 'Business & supply chains', color: '#947a3e' },
+  tech: { label: 'Engineering & tech', color: '#536b70' },
   science: { label: 'Science', color: '#626b99' },
-  animals: { label: 'Animals', color: '#5a7950' },
-  motorsport: { label: 'Motorsport', color: '#aa533a' },
+  cars: { label: 'Cars', color: '#aa533a' },
+  animals: { label: 'Nature', color: '#5a7950' },
+  gaming: { label: 'Gaming', color: '#8a583c' },
   local: { label: 'Malaysia', color: '#947a3e' },
+  culture: { label: 'Culture', color: '#8e6273', legacy: true },
+  motorsport: { label: 'Motorsport', color: '#aa533a', legacy: true },
 };
 const ICONS = {
   sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/>',
@@ -136,6 +139,7 @@ function normalizeState(data) {
     refresh: data.refresh || {},
     digest_ids: Array.isArray(data.digest_ids) ? data.digest_ids : null,
     stats: data.stats || {},
+    briefing: data.briefing,
   };
 }
 
@@ -170,9 +174,7 @@ async function loadState() {
 }
 
 function matchesWatch(story) {
-  if (Array.isArray(story.watch_matches) && story.watch_matches.length) return story.watch_matches;
-  const text = `${story.title || ''} ${story.excerpt || ''}`.toLocaleLowerCase();
-  return (model.settings.watchlist || []).filter(word => text.includes(String(word).toLocaleLowerCase()));
+  return MorningBriefing.matches(story, model.settings.watchlist);
 }
 
 function storyIsCurrent(story) {
@@ -202,76 +204,40 @@ function rank(stories, { now = Date.now(), preferUnread = true } = {}) {
     return stories.map(story => {
       const published = dateOf(story.published_at) || dateOf(story.discovered_at);
       const ageHours = published ? Math.max(0, (now - published.getTime()) / 3600000) : 168;
-      const score = Math.max(0, 100 - ageHours * 1.8) + Math.min(72, matchesWatch(story).length * 48) + (preferUnread && !story.read ? 8 : 0);
+      const score = Math.max(0, 100 - ageHours * 1.8) + (matchesWatch(story).length ? 12 : 0);
       return { story, score, published };
     }).sort((a, b) => b.score - a.score || (b.published || 0) - (a.published || 0)).map(item => item.story);
   }
   return [...stories].sort((a, b) => (Number(b.score) || 0) - (Number(a.score) || 0) || ((dateOf(b.published_at) || 0) - (dateOf(a.published_at) || 0)));
 }
 
-function balancedDigest(stories, unfiltered = false) {
-  const max = Number(model.settings.digest_size) || 15;
-  const result = [];
-  const used = new Set();
-  const perCategory = {};
-  const perSource = {};
-  // Keep the website digest tied to its edition and independent of reading progress.
-  const now = dateOf(model.refresh.last_success_at)?.getTime() ?? Date.now();
-  let sorted = rank(stories, { now, preferUnread: false });
-  function select(story) {
-    const cat = story.category || 'tech';
-    const source = story.source_id || story.source || 'unknown';
-    result.push(story);
-    used.add(story.id);
-    perCategory[cat] = (perCategory[cat] || 0) + 1;
-    perSource[source] = (perSource[source] || 0) + 1;
-  }
-  if (hosted) {
-    sorted = sorted.filter(story => !story.title?.startsWith('Pre-release-shadPS4'));
-    if (unfiltered) {
-      const cutoff = now - 48 * 3600000;
-      const recent = sorted.filter(story => (dateOf(story.published_at) || 0) >= cutoff);
-      if (recent.length) sorted = recent;
-      for (const key of Object.keys(CATEGORIES)) {
-        if (result.length >= max) break;
-        const story = sorted.find(item => item.category === key);
-        if (story) select(story);
-      }
-    }
-  }
-  const orderedResult = () => hosted ? sorted.filter(story => used.has(story.id)) : result;
-  const categoryLimit = Math.max(3, Math.ceil(max / 4));
-  const sourceLimit = Math.max(2, Math.ceil(max / 5));
-  // Keep the front page varied; progressively relax caps if a narrow filter needs it.
-  for (const [categoryCap, sourceCap] of [[categoryLimit, sourceLimit], [categoryLimit + 2, sourceLimit + 1], [max, max]]) {
-    for (const story of sorted) {
-      if (result.length >= max) return orderedResult();
-      if (used.has(story.id)) continue;
-      const cat = story.category || 'tech';
-      const source = story.source_id || story.source || 'unknown';
-      if ((perCategory[cat] || 0) >= categoryCap || (perSource[source] || 0) >= sourceCap) continue;
-      select(story);
-    }
-  }
-  return orderedResult();
+function balancedDigest(stories) {
+  const anchor = dateOf(model.refresh.last_success_at)?.getTime() ||
+    Math.max(0, ...stories.map(story => dateOf(story.discovered_at)?.getTime() || 0));
+  return MorningBriefing.select(stories, model.settings, model.briefing, anchor);
 }
 
 function filteredStories() {
   let stories = availableStories(view === 'saved');
   if (view === 'saved') stories = stories.filter(story => story.saved);
   if (view === 'watchlist') stories = stories.filter(story => matchesWatch(story).length);
-  if (category !== 'all') stories = stories.filter(story => story.category === category);
-  if (query) stories = stories.filter(story => `${story.title || ''} ${story.excerpt || ''} ${story.source || ''}`.toLocaleLowerCase().includes(query.toLocaleLowerCase()));
-  if (view === 'today' && category === 'all' && !query && model.digest_ids) {
-    const index = new Map(stories.map(story => [story.id, story]));
-    return model.digest_ids.map(id => index.get(id)).filter(Boolean);
+  if (view === 'today') {
+    if (model.digest_ids) {
+      const index = new Map(stories.map(story => [story.id, story]));
+      stories = model.digest_ids.map(id => index.get(id)).filter(Boolean);
+    } else stories = balancedDigest(stories);
   }
-  return view === 'today' ? balancedDigest(stories, category === 'all' && !query) : rank(stories);
+  if (category !== 'all') stories = stories.filter(story => story.category === category);
+  if (query) {
+    const text = query.toLocaleLowerCase();
+    stories = stories.filter(story => `${story.title} ${story.excerpt || ''} ${story.source}`.toLocaleLowerCase().includes(text));
+  }
+  return view === 'today' ? stories : rank(stories);
 }
 
 function renderHeading() {
   const titles = {
-    today: ['THE MORNING EDITION', 'Good morning,', 'curious mind.', 'Your corner of the internet, gathered in one place.', 'Worth your attention'],
+    today: ['THE MORNING EDITION', 'Good morning,', 'curious mind.', 'A short briefing on the world, useful ideas, and things you love. Read what interests you, then get on with your day.', 'Worth your attention'],
     all: ['THE OPEN INTERNET', 'A world of', 'interesting things.', 'Browse your collected stories, including earlier days. Refresh adds new articles; each card shows when it was published.', 'The latest from your sources'],
     watchlist: ['FOLLOW YOUR CURIOSITY', 'Keep an eye', 'on the good stuff.', 'New stories about the people, projects, and places on your radar.', 'On your radar'],
     saved: ['FOR A QUIETER MOMENT', 'Good stories,', 'kept for later.', 'Your bookmarked stories stay here until you remove them, even after other news expires.', 'Your reading list'],
@@ -293,6 +259,9 @@ function renderHeading() {
     if (active) button.setAttribute('aria-current', 'page'); else button.removeAttribute('aria-current');
   });
   $$('.category-filter').forEach(button => {
+    const key = button.dataset.category;
+    button.hidden = key !== 'all' && !model.sources.some(source => source.category === key) &&
+      !model.stories.some(story => story.saved && story.category === key);
     const active = button.dataset.category === category;
     button.classList.toggle('active', active);
     button.setAttribute('aria-pressed', String(active));
@@ -304,7 +273,7 @@ function renderCounts() {
   const availableIds = new Set(stories.map(story => story.id));
   $('#count-today').textContent = model.digest_ids
     ? model.digest_ids.filter(id => availableIds.has(id)).length
-    : hosted ? balancedDigest(stories, true).length : Math.min(stories.length, Number(model.settings.digest_size) || 15);
+    : hosted ? balancedDigest(stories, true).length : Math.min(stories.length, Number(model.settings.digest_size) || 9);
   $('#count-all').textContent = stories.length;
   $('#count-watchlist').textContent = stories.filter(story => matchesWatch(story).length).length;
   $('#count-saved').textContent = model.stories.filter(story => story.saved).length;
@@ -318,7 +287,7 @@ function createStoryCard(story, index, featured = false) {
   card.style.setProperty('--category-color', info.color);
   const top = node('div', 'story-topline');
   top.append(node('span', 'category-tag', info.label), node('span', 'story-number', String(index + 1).padStart(2, '0')));
-  if (hosted && story.read) top.append(node('span', 'read-status', 'Read'));
+  if (story.read) top.append(node('span', 'read-status', 'Read'));
   const title = node('h3');
   const titleLink = linkTo(story.url, story.title || 'Untitled story');
   titleLink.addEventListener('click', () => markRead(story, true, true));
@@ -358,7 +327,7 @@ function createStoryCard(story, index, featured = false) {
   read.title = story.read ? 'Mark unread' : 'Mark as read';
   read.setAttribute('aria-label', `${hosted ? 'Mark as read' : read.title}: ${story.title}`);
   read.setAttribute('aria-pressed', String(Boolean(story.read)));
-  if (hosted) read.dataset.storyId = story.id;
+  read.dataset.storyId = story.id;
   read.append(icon('check'));
   read.addEventListener('click', () => markRead(story, !story.read));
   const save = node('button', 'card-action save-action');
@@ -395,7 +364,7 @@ function websiteDigest(stories) {
   const more = node('section', 'edition-more');
   const grid = node('div', 'stories-grid');
   grid.append(...stories.slice(4).map((story, index) => createStoryCard(story, index + 4)));
-  more.append(node('h2', 'edition-subtitle', 'More to explore'), grid);
+  more.append(node('h2', 'edition-subtitle', 'The rest of your briefing'), grid);
   return [board, more];
 }
 
@@ -412,7 +381,7 @@ function renderEmpty(hasReadStories) {
     buttonText = null;
   } else if (hasReadStories) {
     title = 'You’re all caught up here.';
-    description = 'Turn off Unread only to see the stories you’ve read.';
+    description = 'You’ve reached the end of this selection. There’s no need to keep checking.';
     buttonText = 'Show read stories';
     action = () => { $('#unread-only').checked = false; render(); };
   } else if (query || category !== 'all') {
@@ -442,6 +411,10 @@ function renderEmpty(hasReadStories) {
     description = 'Turn on a few sources to start building your edition.';
     buttonText = 'Choose sources';
     action = () => openSettings();
+  } else if (view === 'today' && model.refresh.last_success_at && !model.refresh.error) {
+    title = 'A quiet edition.';
+    description = 'No new stories fit this briefing. There’s no need to keep checking; come back for the next edition.';
+    buttonText = null;
   }
   empty.append(node('h3', '', title), node('p', '', description));
   if (buttonText) {
@@ -525,7 +498,15 @@ function render() {
     const cards = stories.map((story, index) => createStoryCard(story, index, !hosted && view === 'today' && index === 0));
     grid.replaceChildren(...(cards.length ? cards : [renderEmpty(matches.length > 0)]));
   }
-  $('#result-count').textContent = !loaded ? 'Gathering stories…' : stories.length ? `${stories.length} ${stories.length === 1 ? 'story' : 'stories'}${view === 'today' ? ' · picked for a little variety' : view === 'all' ? ' · collected across refreshes' : ''}` : '0 stories';
+  $('#result-count').textContent = !loaded ? 'Gathering stories…' : stories.length ? `${stories.length} ${stories.length === 1 ? 'story' : 'stories'}${view === 'today' ? ' · a finite daily briefing' : view === 'all' ? ' · collected across refreshes' : ''}` : '0 stories';
+  const complete = matches.length > 0 && matches.every(story => story.read);
+  const end = $('#briefing-end');
+  end.hidden = !loaded || view !== 'today' || category !== 'all' || Boolean(query) || !matches.length;
+  $('#briefing-end-title').textContent = complete ? 'You’re caught up.' : 'That’s this edition.';
+  $('#briefing-end-note').textContent = complete
+    ? 'Your reading is saved. Come back for the next edition when it suits you.'
+    : 'Read the stories that interest you. You don’t need to finish every one.';
+  $('#reading-shelf').hidden = view !== 'saved';
   if ($('#sources-dialog').open) renderSources();
 }
 
@@ -574,7 +555,7 @@ async function updateStory(story, field, value, quietly = false) {
     const index = model.stories.findIndex(item => item.id === story.id);
     if (index !== -1) model.stories[index] = { ...model.stories[index], [field]: value, ...(result.story || {}) };
     cacheState();
-    const restoreReadFocus = hosted && field === 'read' && !quietly &&
+    const restoreReadFocus = field === 'read' && !quietly &&
       document.activeElement?.matches('.read-action') && document.activeElement.dataset.storyId === story.id;
     render();
     if (restoreReadFocus) {
@@ -612,7 +593,7 @@ function setSelectValue(selector, value) {
 function openSettings(focusWatchlist = false) {
   $('#watchlist-input').value = (model.settings.watchlist || []).join(', ');
   $('#muted-input').value = (model.settings.muted_keywords || []).join(', ');
-  setSelectValue('#digest-size', model.settings.digest_size || 15);
+  setSelectValue('#digest-size', model.settings.digest_size || 9);
   setSelectValue('#refresh-minutes', model.settings.refresh_minutes || 60);
   setSelectValue('#retention-days', model.settings.retention_days || 30);
   $('#settings-error').hidden = true;

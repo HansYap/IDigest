@@ -17,6 +17,7 @@ import html
 from html.parser import HTMLParser
 import io
 import json
+import math
 import re
 import sqlite3
 import threading
@@ -34,11 +35,12 @@ MAX_FEED_BYTES = 3 * 1024 * 1024
 FETCH_SECONDS = 7
 REFRESH_SECONDS = 25
 USER_AGENT = "MorningSignal/1.0 (personal local RSS reader)"
-CATEGORIES = ("gaming", "tech", "culture", "science", "animals", "motorsport", "local")
+BRIEFING = json.loads((Path(__file__).resolve().parent / "static" / "briefing.json").read_text(encoding="utf-8"))
+CATEGORIES = tuple(BRIEFING["categories"])
 DEFAULT_SETTINGS = {
-    "watchlist": ["Bloodborne", "PlayStation", "reverse engineering", "emulation", "Sepang"],
+    "watchlist": BRIEFING["defaults"]["watchlist"],
     "muted_keywords": [],
-    "digest_size": 15,
+    "digest_size": BRIEFING["defaults"]["digest_size"],
     "refresh_minutes": 60,
     "retention_days": 30,
 }
@@ -48,6 +50,35 @@ STOP_WORDS = {"the", "a", "an", "and", "or", "for", "of", "to", "in", "on", "wit
 
 def utcnow() -> str:
     return dt.datetime.now(UTC).isoformat(timespec="seconds").replace("+00:00", "Z")
+
+
+def watch_matches(title: str, watchlist: list[str]) -> list[str]:
+    """Match complete literal phrases, so a watch for AI does not match 'said'."""
+    return [word for word in watchlist if word.strip() and re.search(
+        r"(?<!\w)" + re.escape(word.strip()) + r"(?!\w)", title, re.IGNORECASE)]
+
+
+def _story_time(value: str | None) -> dt.datetime | None:
+    try:
+        parsed = dt.datetime.fromisoformat(value.replace("Z", "+00:00"))
+        return parsed.astimezone(UTC) if parsed.tzinfo else parsed.replace(tzinfo=UTC)
+    except (AttributeError, TypeError, ValueError):
+        return None
+
+
+def briefing_score(story: dict, now: dt.datetime, watchlist: list[str]) -> float:
+    policy = BRIEFING["digest"]
+    published = _story_time(story.get("published_at"))
+    age = max(0, (now - published).total_seconds() / 3600) if published else 168
+    title = story.get("title", "")
+    score = max(0, 100 - age * 1.8)
+    if watch_matches(title, watchlist):
+        score += policy["watch_bonus"]
+    if story.get("category") in ("world", "business") and any(
+        re.search(pattern, title, re.IGNORECASE | re.ASCII) for pattern in policy.get("region_patterns", [])
+    ):
+        score += policy.get("region_bonus", 0)
+    return score
 
 
 class _PlainText(HTMLParser):
@@ -184,6 +215,11 @@ def parse_feed(data: bytes, source: dict, fetched_at: str | None = None) -> list
     for item in root.iter():
         if _local_tag(item.tag) not in {"item", "entry"}:
             continue
+        tags = [(child.attrib.get("term") or child.text or "").strip().casefold()
+                for child in item if _local_tag(child.tag) == "category"]
+        if any(tag.startswith(prefix.casefold()) for tag in tags
+               for prefix in source.get("exclude_feed_categories", []) if prefix):
+            continue
         title = plain_text(_child_text(item, {"title"}), 300)
         if not title:
             continue
@@ -213,7 +249,7 @@ def parse_feed(data: bytes, source: dict, fetched_at: str | None = None) -> list
             "id": story_id, "title": title, "url": url,
             "normalized_url": key, "source_id": source["id"],
             "source": source["name"], "category": source["category"],
-            "excerpt": _excerpt_text(item),
+            "excerpt": "" if source.get("headlines_only") else _excerpt_text(item),
             "published_at": parse_date(published, fetched_at),
             "discovered_at": fetched_at,
         })
@@ -262,7 +298,9 @@ class NewsEngine:
             ids.add(source_id)
             self.sources.append({"id": source_id, "name": str(item["name"]),
                                  "url": safe_url(item["url"]), "category": item["category"],
-                                 "website": safe_url(item.get("website", item["url"]))})
+                                 "website": safe_url(item.get("website", item["url"])),
+                                 "headlines_only": item.get("headlines_only") is True,
+                                 "exclude_feed_categories": [str(tag).strip() for tag in item.get("exclude_feed_categories", []) if str(tag).strip()]})
         self._lock = threading.RLock()
         self._refresh = {"running": False, "started_at": None, "finished_at": None,
                          "last_success_at": None, "error": None, "completed": 0, "total": 0}
@@ -306,7 +344,48 @@ class NewsEngine:
                     pass
             # A terminated process must never leave the next session "refreshing".
             self._refresh["running"] = False
+            self._migrate_settings(conn)
+            # Reclassify cached stories when a retained source moves sections.
+            # Removed sources' bookmarks keep their original content and category.
+            conn.executemany("UPDATE stories SET category=? WHERE source_id=?", [
+                (source["category"], source["id"]) for source in self.sources
+            ])
             self._cleanup(conn)
+
+    def _migrate_settings(self, conn):
+        row = conn.execute("SELECT value FROM metadata WHERE key='settings'").fetchone()
+        try:
+            previous = json.loads(row["value"]) if row else {}
+            previous = previous if isinstance(previous, dict) else {}
+        except (ValueError, TypeError):
+            previous = {}
+        row = conn.execute("SELECT value FROM metadata WHERE key='briefing_preferences'").fetchone()
+        try:
+            migration = json.loads(row["value"]) if row else {}
+            migration = migration if isinstance(migration, dict) else {}
+        except (ValueError, TypeError):
+            migration = {}
+        settings = {**DEFAULT_SETTINGS, **previous}
+        if migration.get("version", 0) < BRIEFING["version"]:
+            for key in ("watchlist", "digest_size"):
+                if settings[key] == BRIEFING["legacy"][key]:
+                    settings[key] = DEFAULT_SETTINGS[key]
+        source_ids = [source["id"] for source in self.sources]
+        if "enabled_sources" not in previous:
+            settings["enabled_sources"] = source_ids
+        else:
+            # Old releases did not record the known source list. Its original
+            # catalogue distinguishes newly introduced feeds from exclusions.
+            legacy_ids = BRIEFING["legacy"]["source_ids"]
+            fallback_known = legacy_ids if set(source_ids).intersection(legacy_ids) else source_ids
+            known = set(migration.get("known_source_ids", fallback_known))
+            enabled = set(previous["enabled_sources"])
+            settings["enabled_sources"] = [source_id for source_id in source_ids
+                if source_id in enabled or (enabled and source_id not in known)]
+        conn.execute("INSERT OR REPLACE INTO metadata VALUES ('settings', ?)", (json.dumps(settings),))
+        conn.execute("INSERT OR REPLACE INTO metadata VALUES ('briefing_preferences', ?)", (
+            json.dumps({"version": BRIEFING["version"], "known_source_ids": source_ids}),
+        ))
 
     def _settings(self, conn) -> dict:
         settings = {**DEFAULT_SETTINGS, "enabled_sources": [s["id"] for s in self.sources]}
@@ -391,7 +470,14 @@ class NewsEngine:
                 ORDER BY published_at DESC LIMIT 1000""", (self._retention_cutoff(settings),)).fetchall()
             health = {row["source_id"]: dict(row) for row in conn.execute("SELECT * FROM feed_state")}
         enabled = set(settings["enabled_sources"])
-        now = dt.datetime.now(UTC)
+        with self._lock:
+            refresh = dict(self._refresh)
+        # Fix the lineup to the published edition, including across read toggles.
+        # Before the first refresh, cached discovery time is a stable fallback.
+        now = _story_time(refresh.get("last_success_at")) or max(
+            (_story_time(row["discovered_at"]) for row in rows if _story_time(row["discovered_at"])),
+            default=dt.datetime.now(UTC),
+        )
         stories, muted_count = [], 0
         for row in rows:
             item = dict(row)
@@ -403,17 +489,11 @@ class NewsEngine:
                 muted_count += 1
             if not item["saved"] and (item["muted"] or not item["enabled"]):
                 continue
-            item["watch_matches"] = [word for word in settings["watchlist"] if word.casefold() in searchable]
-            try:
-                age = max(0, (now - dt.datetime.fromisoformat(item["published_at"].replace("Z", "+00:00"))).total_seconds() / 3600)
-            except ValueError:
-                age = 168
-            # A watched development from yesterday should outrank an unrelated
-            # headline published a few minutes ago in a personal morning digest.
-            item["score"] = round(max(0, 100 - age * 1.8) + min(72, len(item["watch_matches"]) * 48) + (8 if not item["read"] else 0), 2)
+            item["watch_matches"] = watch_matches(item["title"] + " " + item["excerpt"], settings["watchlist"])
+            item["score"] = round(briefing_score(item, now, settings["watchlist"]), 2)
             item["related_sources"] = []
             stories.append(item)
-        stories.sort(key=lambda x: (x["score"], x["published_at"]), reverse=True)
+        stories.sort(key=lambda x: (-x["score"], -(_story_time(x["published_at"]) or now).timestamp(), x["id"]))
         grouped = []
         for story in stories:
             if story["saved"]:
@@ -433,59 +513,78 @@ class NewsEngine:
         others = [s for s in grouped if not s["saved"]]
         grouped = sorted(saved + others[:600], key=lambda s: (s["score"], s["published_at"]), reverse=True)
         eligible = [s for s in grouped if s["enabled"] and not s["muted"]]
-        digest = self._digest(eligible, settings["digest_size"])
+        digest = self._digest(eligible, settings["digest_size"], now, settings["watchlist"])
         source_info = []
         for source in self.sources:
             state = health.get(source["id"], {})
             source_info.append({**source, **{k: state.get(k) for k in ("last_checked_at", "last_success_at", "last_error", "status")},
                                 "article_count": state.get("article_count", 0), "enabled": source["id"] in enabled})
-        with self._lock:
-            refresh = dict(self._refresh)
         return {"stories": grouped, "digest_ids": [s["id"] for s in digest], "sources": source_info,
-                "settings": settings, "refresh": refresh, "updated_at": utcnow(),
+                "settings": settings, "briefing": BRIEFING, "refresh": refresh, "updated_at": utcnow(),
                 "stats": {"story_count": len(grouped), "unread_count": sum(not s["read"] for s in grouped),
                           "saved_count": sum(s["saved"] for s in grouped), "muted_count": muted_count,
                           "healthy_sources": sum(bool(s["last_success_at"]) and not s["last_error"] for s in source_info),
                           "enabled_sources": len(enabled)}}
 
     @staticmethod
-    def _digest(stories: list[dict], size: int) -> list[dict]:
-        # Forty-eight hours covers a missed morning without mixing older
-        # specialist updates into a fresh daily shortlist.
-        cutoff = (dt.datetime.now(UTC) - dt.timedelta(hours=48)).isoformat().replace("+00:00", "Z")
-        eligible = [s for s in stories if not s.get("title", "").startswith("Pre-release-shadPS4")]
-        recent = [s for s in eligible if s["published_at"] >= cutoff]
-        pool = recent or eligible
-        selected, seen, source_counts = [], set(), {}
-        # One story per active category, then fill by score with a category cap.
-        for category in CATEGORIES:
-            candidate = next((s for s in pool if s["category"] == category), None)
-            if candidate and len(selected) < size:
-                selected.append(candidate)
-                seen.add(candidate["id"])
-                source_id = candidate.get("source_id", candidate["id"])
-                source_counts[source_id] = source_counts.get(source_id, 0) + 1
-        counts = {cat: sum(s["category"] == cat for s in selected) for cat in CATEGORIES}
-        cap = max(3, (size + 2) // 3)
+    def _digest(stories: list[dict], size: int, now: dt.datetime | None = None,
+                watchlist: list[str] | None = None) -> list[dict]:
+        """A finite, varied shortlist. Quiet sections never force stale filler."""
+        now = now or dt.datetime.now(UTC)
+        watchlist = DEFAULT_SETTINGS["watchlist"] if watchlist is None else watchlist
+        policy = BRIEFING["digest"]
+        # Keep the nine-story balance strict, while making larger saved limits
+        # useful rather than permanently bounded by the default category total.
+        scale = max(1, size / BRIEFING["defaults"]["digest_size"])
+        category_caps = {category: math.ceil(cap * scale) for category, cap in policy["category_caps"].items()}
+        source_cap = math.ceil(policy["source_cap"] * scale)
+        cutoff = now - dt.timedelta(hours=policy["max_age_hours"])
+        pool = []
+        for story in stories:
+            published = _story_time(story.get("published_at"))
+            title = story.get("title", "")
+            category = story.get("category")
+            if category not in CATEGORIES or not published or not cutoff <= published <= now:
+                continue
+            if any(re.search(pattern, title, re.IGNORECASE | re.ASCII) for pattern in policy["exclude_patterns"]):
+                continue
+            if category == "local" and not any(
+                re.search(pattern, title, re.IGNORECASE | re.ASCII) for pattern in policy["local_patterns"]
+            ):
+                continue
+            pool.append(story)
+        pool.sort(key=lambda story: (
+            -briefing_score(story, now, watchlist),
+            -_story_time(story["published_at"]).timestamp(), story["id"],
+        ))
+        selected, category_counts, source_counts = set(), {}, {}
+
+        def fits(story):
+            category = story["category"]
+            source_id = story.get("source_id") or story.get("source") or story["id"]
+            return (story["id"] not in selected
+                    and category_counts.get(category, 0) < category_caps.get(category, 0)
+                    and source_counts.get(source_id, 0) < source_cap)
+
+        def select(story):
+            selected.add(story["id"])
+            category = story["category"]
+            source_id = story.get("source_id") or story.get("source") or story["id"]
+            category_counts[category] = category_counts.get(category, 0) + 1
+            source_counts[source_id] = source_counts.get(source_id, 0) + 1
+
+        for categories in policy["slot_categories"]:
+            if len(selected) >= size:
+                break
+            candidate = next((story for story in pool if story["category"] in categories and fits(story)), None)
+            if candidate is not None:
+                select(candidate)
         for story in pool:
             if len(selected) >= size:
                 break
-            source_id = story.get("source_id", story["id"])
-            if story["id"] not in seen and counts[story["category"]] < cap and source_counts.get(source_id, 0) < 3:
-                selected.append(story)
-                seen.add(story["id"])
-                counts[story["category"]] += 1
-                source_counts[source_id] = source_counts.get(source_id, 0) + 1
-        if len(selected) < size:
-            for story in pool:
-                if len(selected) >= size:
-                    break
-                source_id = story.get("source_id", story["id"])
-                if story["id"] not in seen and source_counts.get(source_id, 0) < 3:
-                    selected.append(story)
-                    seen.add(story["id"])
-                    source_counts[source_id] = source_counts.get(source_id, 0) + 1
-        return sorted(selected[:size], key=lambda s: (s["score"], s["published_at"]), reverse=True)
+            if fits(story):
+                select(story)
+        return [story for story in pool if story["id"] in selected]
 
     def start_refresh(self) -> dict:
         with self._lock:

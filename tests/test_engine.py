@@ -9,7 +9,7 @@ import unittest
 from unittest.mock import patch
 import urllib.error
 
-from news_engine import NewsEngine, normalize_url, parse_date, parse_feed, plain_text, safe_url, similar_titles, utcnow
+from news_engine import BRIEFING, DEFAULT_SETTINGS, NewsEngine, briefing_score, normalize_url, parse_date, parse_feed, plain_text, safe_url, similar_titles, utcnow, watch_matches
 
 
 SOURCE = {"id": "test", "name": "Test", "category": "tech", "url": "https://example.org/feed"}
@@ -29,6 +29,22 @@ class FeedParsingTests(unittest.TestCase):
         self.assertNotIn("utm_source", stories[0]["normalized_url"])
         self.assertEqual(safe_url("javascript:alert(1)"), "")
         self.assertEqual(safe_url("https://user:pass@example.org/"), "")
+
+    def test_headlines_only_source_omits_publisher_excerpt(self):
+        story = parse_feed(RSS, {**SOURCE, "headlines_only": True})[0]
+        self.assertEqual(story["excerpt"], "")
+        self.assertEqual(story["title"], "A & B discover a new browser breakthrough")
+        self.assertEqual(story["url"], "https://example.org/story?utm_source=rss")
+
+    def test_paid_feed_tags_are_excluded_without_banning_premium_car_titles(self):
+        source = {**SOURCE, "exclude_feed_categories": ["premium"]}
+        for category in (b"Premium", b"PREMIUM finance news"):
+            paid = RSS.replace(b"<item>", b"<item><category>" + category + b"</category>")
+            self.assertEqual(parse_feed(paid, source), [])
+        free = RSS.replace(b"A &amp; B discover a new browser breakthrough", b"Engineering a premium car")
+        self.assertEqual(parse_feed(free, source)[0]["title"], "Engineering a premium car")
+        atom = b'<feed xmlns="http://www.w3.org/2005/Atom"><entry><title>Paid story</title><category term="Premium analysis"/><link href="https://example.org/paid"/></entry></feed>'
+        self.assertEqual(parse_feed(atom, source), [])
 
     def test_atom_links_dates_and_xhtml(self):
         atom = b'''<feed xmlns="http://www.w3.org/2005/Atom"><entry><title>Emulation milestone</title>
@@ -143,6 +159,80 @@ class EngineTests(unittest.TestCase):
                         {"retention_days": 7.0}, {"retention_days": "7"}):
             with self.assertRaises(ValueError):
                 self.engine.update_settings(payload)
+
+    def test_legacy_defaults_migrate_without_losing_exclusions_or_bookmarks(self):
+        item = self.store()
+        self.engine.toggle_saved(item["id"], True)
+        self.engine.mark_read(item["id"], True)
+        old_settings = {
+            "watchlist": BRIEFING["legacy"]["watchlist"], "digest_size": 15,
+            "enabled_sources": [source_id for source_id in BRIEFING["legacy"]["source_ids"] if source_id != "paultan"],
+            "muted_keywords": ["spoiler"], "retention_days": 7, "refresh_minutes": 120,
+        }
+        with self.engine._connect() as conn:
+            conn.execute("INSERT OR REPLACE INTO metadata VALUES ('settings', ?)", (json.dumps(old_settings),))
+            conn.execute("DELETE FROM metadata WHERE key='briefing_preferences'")
+        sources = [{**SOURCE, "id": source_id, "category": category}
+                   for source_id, category in (("ars", "tech"), ("paultan", "cars"), ("new-world", "world"))]
+        self.config.write_text(json.dumps(sources), encoding="utf-8")
+        restarted = NewsEngine(self.root / "data", self.config)
+        state = restarted.snapshot()
+        self.assertEqual(state["settings"]["digest_size"], 9)
+        self.assertEqual(state["settings"]["watchlist"], DEFAULT_SETTINGS["watchlist"])
+        self.assertEqual(state["settings"]["enabled_sources"], ["ars", "new-world"])
+        self.assertEqual(state["settings"]["muted_keywords"], ["spoiler"])
+        self.assertEqual(state["settings"]["retention_days"], 7)
+        self.assertEqual(state["settings"]["refresh_minutes"], 120)
+        self.assertEqual([story["id"] for story in state["stories"]], [item["id"]])
+        self.assertTrue(state["stories"][0]["saved"])
+        self.assertTrue(state["stories"][0]["read"])
+        self.assertFalse(state["stories"][0]["enabled"])
+        self.assertEqual(state["briefing"]["version"], BRIEFING["version"])
+
+    def test_migration_preserves_custom_settings_and_explicit_empty_sources(self):
+        self.engine.update_settings({"watchlist": ["wetlands"], "digest_size": 21, "enabled_sources": []})
+        with self.engine._connect() as conn:
+            conn.execute("DELETE FROM metadata WHERE key='briefing_preferences'")
+        self.config.write_text(json.dumps([SOURCE, {**SOURCE, "id": "new-world", "category": "world"}]), encoding="utf-8")
+        restarted = NewsEngine(self.root / "data", self.config)
+        settings = restarted.snapshot()["settings"]
+        self.assertEqual(settings["watchlist"], ["wetlands"])
+        self.assertEqual(settings["digest_size"], 21)
+        self.assertEqual(settings["enabled_sources"], [])
+
+    def test_default_migration_runs_once_and_new_sources_keep_known_exclusions(self):
+        self.engine.update_settings({
+            "watchlist": BRIEFING["legacy"]["watchlist"], "digest_size": 15,
+            "enabled_sources": ["test"],
+        })
+        sources = json.loads(self.config.read_text(encoding="utf-8"))
+        sources.append({**SOURCE, "id": "new-world", "category": "world"})
+        self.config.write_text(json.dumps(sources), encoding="utf-8")
+        restarted = NewsEngine(self.root / "data", self.config)
+        settings = restarted.snapshot()["settings"]
+        self.assertEqual(settings["watchlist"], BRIEFING["legacy"]["watchlist"])
+        self.assertEqual(settings["digest_size"], 15)
+        self.assertEqual(settings["enabled_sources"], ["test", "new-world"])
+        restarted.update_settings({"enabled_sources": ["test"]})
+        again = NewsEngine(self.root / "data", self.config)
+        self.assertEqual(again.snapshot()["settings"]["enabled_sources"], ["test"])
+
+    def test_source_recategorization_keeps_saved_content(self):
+        item = self.store()
+        self.engine.toggle_saved(item["id"], True)
+        self.config.write_text(json.dumps([{**SOURCE, "category": "cars"}]), encoding="utf-8")
+        restarted = NewsEngine(self.root / "data", self.config)
+        story = restarted.snapshot()["stories"][0]
+        self.assertEqual(story["category"], "cars")
+        self.assertEqual(story["title"], item["title"])
+        self.assertEqual(story["url"], item["url"])
+        self.assertTrue(story["saved"])
+
+    def test_headlines_only_source_policy_reaches_the_feed_parser(self):
+        self.config.write_text(json.dumps([{**SOURCE, "headlines_only": True}]), encoding="utf-8")
+        engine = NewsEngine(self.root / "data", self.config)
+        self.assertTrue(engine.sources[0]["headlines_only"])
+        self.assertEqual(parse_feed(RSS, engine.sources[0])[0]["excerpt"], "")
 
     def age_stories(self, days):
         published = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days)).isoformat(timespec="seconds").replace("+00:00", "Z")
@@ -271,13 +361,78 @@ class EngineTests(unittest.TestCase):
         self.assertEqual(result["article_count"], 5)
         self.assertEqual(result["stories"], [])
 
-    def test_digest_has_category_coverage_and_size(self):
-        def item(index, category, score):
-            return {"id": str(index), "category": category, "score": score, "published_at": utcnow()}
-        stories = [item(i, "tech", 100-i) for i in range(20)] + [item(100, "animals", 10), item(101, "gaming", 9)]
-        digest = self.engine._digest(stories, 5)
-        self.assertEqual(len(digest), 5)
-        self.assertEqual({s["category"] for s in digest}, {"tech", "animals", "gaming"})
+    def test_digest_keeps_work_world_and_interests_in_a_finite_mix(self):
+        now = dt.datetime.now(dt.timezone.utc)
+        stories = [{"id": f"{category}-{index}", "source_id": f"source-{category}-{index}",
+                    "title": f"A development in {category} number {index}", "category": category,
+                    "published_at": now.isoformat()}
+                   for category in ("business", "tech", "world", "science", "cars", "animals", "gaming")
+                   for index in range(4)]
+        digest = self.engine._digest(stories, 9, now, [])
+        self.assertEqual(len(digest), 9)
+        counts = {category: sum(story["category"] == category for story in digest) for category in BRIEFING["categories"]}
+        self.assertEqual(counts, {"world": 2, "business": 2, "tech": 1, "science": 1,
+                                  "cars": 1, "animals": 1, "gaming": 1, "local": 0})
+        self.assertEqual(digest, self.engine._digest(list(reversed(stories)), 9, now, []))
+
+    def test_digest_filters_quiet_day_filler_and_keeps_strict_caps(self):
+        now = dt.datetime.now(dt.timezone.utc)
+        def item(story_id, category="tech", title="Engineering development", age=0, source=None):
+            return {"id": story_id, "source_id": source or story_id, "title": title, "category": category,
+                    "published_at": (now - dt.timedelta(hours=age)).isoformat()}
+        stories = [item("old", age=49), item("future", age=-1), item("invalid", "culture"),
+                   item("promo", title="Best deals on graphics cards"), item("patch", "gaming", "Game patch notes"),
+                   item("live", "world", "Live updates from the summit"),
+                   item("chatter", "local", "Politician spotted at a restaurant"),
+                   item("flood", "local", "Flood evacuations continue in Malaysia"),
+                   item("budget", "local", "Malaysia budget changes income tax"),
+                   item("science", "science", "New research result"),
+                   item("tech1", source="same"), item("tech2", source="same"), item("tech3", source="same")]
+        digest = self.engine._digest(stories, 9, now, [])
+        self.assertEqual({story["id"] for story in digest}, {"budget", "science", "tech1", "tech2"})
+        self.assertEqual(self.engine._digest([item("old", age=49)], 9, now), [])
+
+    def test_larger_custom_digest_limit_scales_diversity_caps(self):
+        now = dt.datetime.now(dt.timezone.utc)
+        categories = ("world", "business", "tech", "science", "cars", "animals", "gaming")
+        stories = [{"id": f"{category}-{index:02}", "source_id": f"{category}-publisher",
+                    "category": category, "title": f"A useful {category} development {index}",
+                    "published_at": now.isoformat()} for category in categories for index in range(12)]
+        digest = self.engine._digest(stories, 24, now, [])
+        self.assertEqual(len(digest), 24)
+        self.assertEqual({story["category"] for story in digest}, set(categories))
+        for category in categories:
+            count = sum(story["category"] == category for story in digest)
+            self.assertLessEqual(count, 3 if category in ("cars", "animals", "gaming") else 6)
+        self.assertEqual(len(self.engine._digest(stories, 9, now, [])), 9)
+
+    def test_watch_phrases_are_bounded_and_overlapping_matches_do_not_stack(self):
+        self.assertEqual(watch_matches("The company said its trailer is ready", ["AI"]), [])
+        self.assertEqual(watch_matches("AI inference improves on the 987.2 project", ["AI", "987.2"]), ["AI", "987.2"])
+        self.assertEqual(watch_matches("The C++ runtime and caféAI system", ["C++", "AI"]), ["C++"])
+        now = dt.datetime.now(dt.timezone.utc)
+        story = {"id": "car", "title": "Porsche 944 engineering", "category": "cars", "published_at": now.isoformat()}
+        self.assertEqual(briefing_score(story, now, ["Porsche", "Porsche 944"]), briefing_score(story, now, ["Porsche 944"]))
+        self.assertEqual(briefing_score(story, now, ["Porsche 944"]) - briefing_score(story, now, []), 12)
+
+    def test_read_changes_and_restart_preserve_digest_order(self):
+        now = utcnow()
+        rows = [{"id": f"stable-{index}", "title": title, "url": f"https://example.org/stable-{index}",
+                 "normalized_url": f"https://example.org/stable-{index}", "source_id": "test", "source": "Test",
+                 "category": "tech", "excerpt": "", "published_at": now, "discovered_at": now}
+                for index, title in enumerate(("New battery architecture", "A processor design milestone", "Improved database reliability"))]
+        self.engine._store_result({"source_id": "test", "stories": rows})
+        with self.engine._connect() as conn:
+            conn.execute("INSERT OR REPLACE INTO metadata VALUES ('refresh', ?)", (json.dumps({"last_success_at": now}),))
+        self.engine._refresh["last_success_at"] = now
+        before = self.engine.snapshot()["digest_ids"]
+        self.assertEqual(len(before), 2)
+        self.engine.mark_read(before[0], True)
+        self.assertEqual(self.engine.snapshot()["digest_ids"], before)
+        restarted = NewsEngine(self.root / "data", self.config)
+        self.assertEqual(restarted.snapshot()["digest_ids"], before)
+        restarted.mark_read(before[0], False)
+        self.assertEqual(restarted.snapshot()["digest_ids"], before)
 
 
 if __name__ == "__main__":

@@ -1,59 +1,51 @@
 # Morning Signal sources
 
-Feed endpoints were requested directly and parsed as RSS/Atom on 15 October 2026. No API keys, accounts, paid services, search scraping, or paywall workarounds were used. The detailed machine-readable evidence is in `source_report.json`.
+Reviewed and directly probed on 8 November 2026, Malaysia time. The **13-source briefing** replaces the overlapping starter feeds with world affairs, business and logistics, engineering, science, nature, cars, and gaming. It affects both editions. No subscription, API key, paid feed, or paid service is required by the reader. Individual publishers control their linked pages; access and terms can change.
 
-## Configured starter set (25 feeds)
+## Configured feeds
 
-| ID | Feed | Category | Items in verified response |
-|---|---|---|---:|
-| ars | [Ars Technica](https://feeds.arstechnica.com/arstechnica/index) | tech | 20 |
-| verge | [The Verge](https://www.theverge.com/rss/index.xml) | tech | 10 |
-| hackernews | [Hacker News](https://news.ycombinator.com/rss) | tech | 30 |
-| hackaday | [Hackaday](https://hackaday.com/blog/feed/) | tech | 7 |
-| bleepingcomputer | [BleepingComputer](https://www.bleepingcomputer.com/feed/) | tech | 15 |
-| 404media | [404 Media](https://www.404media.co/rss/) | tech | 15 |
-| register | [The Register](https://www.theregister.com/headlines.atom) | tech | 50 |
-| eurogamer | [Eurogamer](https://www.eurogamer.net/feed) | gaming | 100 |
-| rps | [Rock Paper Shotgun](https://www.rockpapershotgun.com/feed) | gaming | 100 |
-| gamingonlinux | [GamingOnLinux](https://www.gamingonlinux.com/article_rss.php) | gaming | 50 |
-| wololo | [Wololo](https://wololo.net/feed/) | gaming | 20 |
-| shadps4 | [shadPS4 Releases](https://github.com/shadps4-emu/shadPS4/releases.atom) | gaming | 10 |
-| variety | [Variety](https://variety.com/feed/) | culture | 10 |
-| polygon | [Polygon](https://www.polygon.com/rss/index.xml) | culture | 10 |
-| kym | [Know Your Meme](https://knowyourmeme.com/newsfeed.rss) | culture | 5 |
-| smithsonian | [Smithsonian Science & Nature](https://www.smithsonianmag.com/rss/science-nature/) | science | 15 |
-| nasanews | [NASA](https://www.nasa.gov/feed/) | science | 10 |
-| sciencealert | [ScienceAlert](https://www.sciencealert.com/feed) | science | 10 |
-| mongabay | [Mongabay](https://news.mongabay.com/feed/) | animals | 32 |
-| physanimals | [Phys.org Plants & Animals](https://phys.org/rss-feed/biology-news/plants-animals/) | animals | 30 |
-| racefans | [RaceFans](https://www.racefans.net/feed/) | motorsport | 20 |
-| motorsport | [Motorsport.com F1](https://www.motorsport.com/rss/f1/news/) | motorsport | 50 |
-| soyacincau | [SoyaCincau](https://soyacincau.com/feed/) | local | 10 |
-| lowyat | [Lowyat.NET](https://www.lowyat.net/feed/) | local | 10 |
-| paultan | [Paul Tan](https://paultan.org/feed/) | local | 20 |
+Every configured endpoint returned RSS/Atom and parsed with the actual `news_engine.parse_feed` parser. The counts below are dated items in those responses, not a promise of daily output. [source_report.json](source_report.json) records each probe's actual time, response and policy-review status without copying articles.
 
-All 25 selected feeds parsed successfully. None contained a DTD or entity declaration. Response sizes were approximately 5 KB–348 KB. Independent requests used up to six workers and an eight-second timeout; successful first probes generally took 0.1–3.5 seconds each. Individual publishers can become unavailable later, so the reader must retain the last good cache and expose source errors.
+| ID | Source | Category | Dated items | Purpose |
+| --- | --- | --- | ---: | --- |
+| bbcworld | [BBC News - World](https://feeds.bbci.co.uk/news/world/rss.xml) | world | 25 | Major international developments |
+| bbcasia | [BBC News - Asia](https://feeds.bbci.co.uk/news/world/asia/rss.xml) | world | 17 | Regional context, including client markets |
+| bbcbusiness | [BBC News - Business](https://feeds.bbci.co.uk/news/business/rss.xml) | business | 43 | Companies, trade and economic changes |
+| loadstar | [The Loadstar News](https://theloadstar.com/category/news/feed/) | business | 10 | Freight, ports, carriers and supply chains |
+| ars | [Ars Technica](https://feeds.arstechnica.com/arstechnica/index) | tech | 20 | Technology, security and engineering context |
+| ieeespectrum | [IEEE Spectrum](https://spectrum.ieee.org/feeds/feed.rss) | tech | 30 | Chips, energy, robotics and engineering |
+| physnews | [Phys.org Research Highlights](https://phys.org/rss-feed/breaking/) | science | 30 | Broad scientific research |
+| nasanews | [NASA](https://www.nasa.gov/feed/) | science | 10 | Space, Earth science and mission updates |
+| techcars | [TechXplore.com Automotive](https://techxplore.com/rss-feed/automotive-news/) | cars | 30 | Car engineering and automotive industry |
+| mongabay | [Mongabay](https://news.mongabay.com/feed/) | animals | 32 | Wildlife, forests and conservation |
+| physanimals | [Phys.org Plants & Animals](https://phys.org/rss-feed/biology-news/plants-animals/) | animals | 30 | Animal and plant research |
+| eurogamer | [Eurogamer](https://www.eurogamer.net/feed) | gaming | 100 | Gaming companies, releases and industry |
+| wololo | [Wololo](https://wololo.net/feed/) | gaming | 20 | Homebrew and console developments |
 
-Hacker News supplies community technical-project discovery; linked posts are not independently verified by the reader. Wololo and GitHub releases are specialist feeds: quiet periods are normal. Preserve original dates and do not present old releases as today's news. Mongabay includes conservation and forests; the Phys.org topic also includes plant research. Malaysia coverage starts with local technology and automotive publications, rather than a general politics stream.
+BBC's sections share one publisher; they are not independent corroboration. Phys.org and Tech Xplore also share a publisher. Some research coverage originates from institutions' announcements: a headline saying “breakthrough” is not independent confirmation. Wololo can be quiet; old releases must retain their original dates.
 
-## Content handling
+Cars currently has an engineering/industry feed. Enthusiast histories, older Porsches, tuning, aquarium and vivarium guides belong in the reader's direct reading shelf as well. There is **no dedicated general-Malaysia feed** in this set: major regional developments can arrive through BBC Asia. This is a coverage limitation, not a claim to cover every important local event.
 
-- Show the publisher's name, original headline, a short feed-provided excerpt where available, publication date, and a direct original link.
-- Treat titles and excerpts as publisher claims, not independently verified facts. Headlines alone cannot establish whether a port is official, a project is complete, or a rumour is confirmed.
-- Strip executable HTML and tracking markup from displayed excerpts. Do not fetch full article pages, retain full `content:encoded` articles, download publisher images, or bypass subscriptions.
-- Keep the app for personal local reading. Public RSS availability does not grant unrestricted redistribution rights. Any later public hosting, commercial use, or AI rewriting needs a separate publisher-policy review.
-- Prefer conditional requests and a refresh interval of at least 30 minutes. Daily launch refreshes are sufficient for the morning digest. One failed source must not block the others.
+## Access, attribution and reuse
 
-[Ars Technica's feed directory](https://arstechnica.com/rss-feeds/) confirms its reader feeds and distinguishes subscriber full-text feeds. This app uses the public feed. [Mongabay's FAQ](https://mongabay.com/faq/) distinguishes ordinary linked excerpts from extended/full-article redistribution, which can require permission.
+Public feed availability and permission to republish complete articles are different. The website publishes original headline links, dates and source credit, with its own category illustrations; it does not publish article bodies or publisher pictures. The Windows reader can retain short feed excerpts where supported. Keep original article links and prominent publisher credit; do not imply endorsement or verification.
 
-## Excluded candidates and fallbacks
+- [BBC's content terms](https://www.bbc.co.uk/usingthebbc/terms/can-i-use-bbc-content/) permit personal website RSS use with feed integrity, attribution and links. Business use has separate terms. This remains a personal, non-commercial reader.
+- [Phys.org](https://phys.org/feeds/) and [Tech Xplore](https://techxplore.com/feeds/) expressly offer website feeds without a fee, requiring unchanged headlines/links and source credit.
+- [The Loadstar's current copyright policy](https://theloadstar.com/licencing-and-copyright/) allows RSS links. `headlines_only: true` suppresses its Windows excerpts too; `exclude_feed_categories: ["premium"]` rejects paid-category entries before storage. Its **News** feed contained no Premium-tagged entries; the general feed contained five in ten and is not configured. Do not use the older about page's more generous copying wording.
+- [NASA's usage guidance](https://www.nasa.gov/nasa-brand-center/images-and-media/) permits factual informational use with acknowledgement, subject to third-party material and branding restrictions. No publisher images are imported.
+- [Mongabay's FAQ](https://mongabay.com/faq/) provides RSS and distinguishes excerpts from extended republication. [Ars's feed directory](https://arstechnica.com/rss-feeds/) separates ordinary feeds from subscriber full-text feeds; only the public feed is configured.
+- IEEE Spectrum, Ars, Eurogamer and Wololo are ordinary public RSS sources used for credited headline links on the website. A blanket public-republication licence was **not established** for them. This review does not grant permission to copy their articles, images or subscriber material. IEEE's linked terms page returned an empty response during this check.
 
-- **ScienceDaily:** Both requested feeds work technically, but its [RSS terms](https://www.sciencedaily.com/terms.htm) restrict altered text, long-term storage, and database entry without permission. They are excluded from the recommended defaults; ScienceAlert, Smithsonian, and Phys.org supply the initial science/animal coverage.
-- **PC Gamer:** The general feed exceeded the two-megabyte verification safety cap and was truncated mid-CDATA. A smaller publisher feed could be checked later.
-- **The A.V. Club:** The feed had an unbound XML namespace prefix and failed strict parsing.
-- **NASA Science:** `science.nasa.gov/feed/` returned non-XML content. The working `www.nasa.gov/feed/` is used instead.
-- **Live Science Animals:** The candidate `/feeds/animals` endpoint returned 404.
-- **Earth Touch:** The candidate `/rss.xml` endpoint timed out.
-- **Working fallbacks:** Phys.org's general feed, Crash F1, Autosport F1, and Malay Mail Malaysia also parsed. They are not in this recommended 25-source set to reduce topic/publisher overlap and broad general news. Exact URLs are recorded in the report.
+No article scraping, paywall bypass, AI rewriting or paid integration is used. If a publisher introduces access restrictions, remove or replace that source rather than bypassing them.
 
-The initial restricted-shell attempt could not resolve any hostnames. The report was then replaced with actual responses from an approved read-only network probe; DNS sandbox failures are not counted as publisher outages.
+## Candidates not configured
+
+- **CNA:** its [RSS terms](https://www.channelnewsasia.com/rss/rssterms) explicitly prohibit transferring feeds to third parties. Read CNA directly.
+- **Paul Tan, Malay Mail, Free Malaysia Today, Silodrome and Motor1:** feeds may work, but reviewed terms reserve reproduction/public display; no applicable public-feed permission was established. Keep direct reading links instead. See the report for policy URLs.
+- **Quanta:** free to read, but [terms](https://www.quantamagazine.org/terms-conditions/) reserve republication; use as a direct longer-read destination. Phys.org supplies the science feed.
+- **PistonHeads and Top Gear:** tested candidate feed paths returned 404. **Hagerty:** tested US/UK feeds returned 403. These results do not prove every possible feed is unavailable; none was added or bypassed.
+- **Bernama:** the tested general RSS returned items without publication dates, so it cannot supply this dated website edition reliably.
+- **AP:** no official free consumer RSS endpoint was established in this review; BBC supplies the world feed.
+
+The narrower set removes meme/entertainment feeds, F1-only feeds and overlapping general technology/gaming outlets. Retained source IDs stay unchanged. Saved stories and personal settings must be preserved by the preference migration described in the development guide.

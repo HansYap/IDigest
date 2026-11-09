@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 230">
+  <defs><pattern id="road-grain" width="16" height="16" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r=".9" fill="#efd7b0" opacity=".2"/></pattern></defs>
+  <rect width="480" height="230" fill="#a66a51"/>
+  <circle cx="337" cy="69" r="49" fill="#e1bc83"/>
+  <path d="M0 131 67 79l65 42 67-55 76 66 64-32 70 27 71-32v135H0Z" fill="#815a4f"/>
+  <path d="M0 154 62 125l49 20 81-39 91 47 73-31 68 17 56-12v103H0Z" fill="#604a49"/>
+  <path d="M0 183c129-23 290-25 480-8v55H0Z" fill="#333b46"/>
+  <path d="M0 183c129-23 290-25 480-8" fill="none" stroke="#d7bd94" stroke-width="2"/>
+  <rect y="183" width="480" height="47" fill="url(#road-grain)"/>
+  <path d="m6 215 57-5m59-4 60-2m61-1h60m62 3 61 4" fill="none" stroke="#d8bf97" stroke-width="3"/>
+  <ellipse cx="243" cy="184" rx="156" ry="8" fill="#242f3b" opacity=".7"/>
+  <path d="m91 167 8-23 59-11 36-32c19-15 60-15 81-2l46 34 49 10 19 15-4 17H99Z" fill="#d3d3bc" stroke="#34444d" stroke-width="2" stroke-linejoin="round"/>
+  <path d="m171 132 30-25c13-9 41-10 55-4l29 29Z" fill="#344e59"/>
+  <path d="m264 107 8 3 28 23h-12Z" fill="#54747a"/>
+  <path d="m202 108-22 20h28l23-23c-12-1-22 0-29 3Z" fill="#799396"/>
+  <path d="m240 103 4 29m-68 8h112v28H173Zm-70 13h57m140-5 55 9" fill="none" stroke="#7c8c89" stroke-width="1.5"/>
+  <path d="M270 142h12m-124-14h13l5 7h-16Z" fill="#344e59"/>
+  <path d="M98 148h20l-4 7H95Zm263 1h15l8 7h-18Z" fill="#f1dcaa"/>
+  <path d="M94 166h292v8H94Z" fill="#738682"/>
+  <g fill="#273743" stroke="#d9d2b6" stroke-width="3"><circle cx="145" cy="171" r="23"/><circle cx="333" cy="171" r="23"/></g>
+  <g fill="#b5c2b9" stroke="#344650" stroke-width="2"><circle cx="145" cy="171" r="12"/><circle cx="333" cy="171" r="12"/></g>
+  <g fill="none" stroke="#344650" stroke-width="2"><path d="m136 162 18 18m-18 0 18-18m170 0 18 18m-18 0 18-18"/></g>
+  <g fill="#344650"><circle cx="145" cy="171" r="3"/><circle cx="333" cy="171" r="3"/></g>
+  <path d="M38 100h29m-15-10h37m306 27h37" fill="none" stroke="#e5c69b" stroke-width="2" stroke-linecap="round" opacity=".65"/>
+</svg>

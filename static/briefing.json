@@ -1,0 +1,130 @@
+{
+  "version": 2,
+  "categories": [
+    "world",
+    "business",
+    "tech",
+    "science",
+    "cars",
+    "animals",
+    "gaming",
+    "local"
+  ],
+  "defaults": {
+    "digest_size": 9,
+    "watchlist": [
+      "model serving",
+      "inference",
+      "data quality",
+      "demand forecasting",
+      "port congestion",
+      "export controls",
+      "987.2",
+      "Porsche 944",
+      "Toyota Supra",
+      "Alpina",
+      "Bovensiepen",
+      "Brabus",
+      "PS5 jailbreak",
+      "shadPS4",
+      "aquascaping",
+      "vivarium"
+    ]
+  },
+  "legacy": {
+    "digest_size": 15,
+    "watchlist": [
+      "Bloodborne",
+      "PlayStation",
+      "reverse engineering",
+      "emulation",
+      "Sepang"
+    ],
+    "source_ids": [
+      "ars",
+      "verge",
+      "hackernews",
+      "hackaday",
+      "bleepingcomputer",
+      "404media",
+      "register",
+      "eurogamer",
+      "rps",
+      "gamingonlinux",
+      "wololo",
+      "shadps4",
+      "variety",
+      "polygon",
+      "kym",
+      "smithsonian",
+      "nasanews",
+      "sciencealert",
+      "mongabay",
+      "physanimals",
+      "racefans",
+      "motorsport",
+      "soyacincau",
+      "lowyat",
+      "paultan"
+    ]
+  },
+  "digest": {
+    "max_age_hours": 48,
+    "watch_bonus": 12,
+    "region_bonus": 8,
+    "region_patterns": [
+      "\\b(?:Malaysia|Singapore|China|Chinese|Thailand|Thai|Indonesia|Philippines|Japan|Japanese|ASEAN|Southeast Asia)\\b"
+    ],
+    "slot_categories": [
+      [
+        "business"
+      ],
+      [
+        "tech"
+      ],
+      [
+        "world"
+      ],
+      [
+        "world"
+      ],
+      [
+        "science"
+      ],
+      [
+        "cars"
+      ],
+      [
+        "animals"
+      ],
+      [
+        "gaming"
+      ],
+      [
+        "business",
+        "tech",
+        "local"
+      ]
+    ],
+    "category_caps": {
+      "world": 2,
+      "business": 2,
+      "tech": 2,
+      "science": 2,
+      "cars": 1,
+      "animals": 1,
+      "gaming": 1,
+      "local": 1
+    },
+    "source_cap": 2,
+    "exclude_patterns": [
+      "^Pre-release-shadPS4",
+      "\\b(?:coupon|promo code|discount code|giveaway|sponsored|advertorial|affiliate|horoscope|celebrity gossip)\\b",
+      "\\b(?:best deals|deals of the|lowest price|buy now|save \\$|live updates|live blog|liveblog|patch notes|daily puzzle|wordle|crossword|transfer rumours)\\b",
+      "(?:\\[premium\\]|\\b(?:subscriber.only|subscription.only|members.only)\\b)"
+    ],
+    "local_patterns": [
+      "\\b(?:floods?|earthquake|tsunami|evacuat\\w*|public health|outbreak|state of emergency|budget|interest rates?|tax reform|minimum wage|trade agreement|export ban|national election|general election|power outage|water disruption|rail project|data cent(?:er|re)|semiconductor|manufacturing investment)\\b"
+    ]
+  }
+}
